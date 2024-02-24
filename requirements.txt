@@ -1,0 +1,7 @@
+graphviz==0.20.1
+h5py==3.9.0
+numpy==1.26.0
+opt-einsum==3.3.0
+scipy==1.11.3
+tensornetwork==0.4.6
+tqdm==4.66.1
