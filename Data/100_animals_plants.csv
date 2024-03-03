@@ -1,0 +1,102 @@
+# Description: Simple sentences from domain animals (0) or plants (1).
+# Source: ChatGPT3.5; Prompt: Write a csv file containing 100 sentences with binary labels. The sentences should either be in the category animals (label 0) or plants (label 1). The sentences should have a simple syntax. Use only nouns, transitive and intransitive verbs and the pronouns who/that. Example: The lion who drinks dies. Do not start all sentences with "the".
+The cat that sleeps purrs.,0
+Dogs that bark scare birds.,0
+The horse who eats runs fast.,0
+Cows that graze give milk.,0
+Birds that sing greet mornings.,0
+The fish who swims explores the ocean.,0
+Owls that hunt are nocturnal.,0
+The rabbit that hops enjoys carrots.,0
+Monkeys that climb entertain us.,0
+The bear who roars protects its territory.,0
+Plants that bloom attract bees.,1
+Trees that sway provide shade.,1
+The flower that blossoms smells sweet.,1
+Vines that climb cover walls.,1
+The grass that grows needs sunlight.,1
+Tulips that bloom add color to gardens.,1
+The fern that unfurls loves damp soil.,1
+Roses that bloom have thorns.,1
+Sunflowers that face the sun thrive.,1
+The oak that stands tall offers acorns.,1
+The snake who slithers hunts mice.,0
+Birds that migrate cover long distances.,0
+The koala who eats eucalyptus sleeps a lot.,0
+Frogs that leap catch insects.,0
+The lion that roars marks its territory.,0
+Butterflies that flutter are colorful.,0
+The penguin who waddles cannot fly.,0
+Ants that work together build strong colonies.,0
+The elephant who trumpets communicates with others.,0
+The sunflower that turns follows the sun.,1
+The tomato plant that grows yields juicy fruits.,1
+Cacti that thrive in deserts store water.,1
+The palm tree that sways survives storms.,1
+The orchid that blooms is delicate.,1
+Seeds that sprout become new plants.,1
+The fern that unfurls loves damp soil.,1
+Grains that grow provide sustenance.,1
+The oak that stands tall offers acorns.,1
+The cheetah who runs fast catches prey.,0
+Bees that buzz pollinate flowers.,1
+The snail that crawls leaves a trail.,0
+The giraffe who grazes has a long neck.,0
+The crocodile that lurks in water is stealthy.,0
+The eagle that soars has keen eyesight.,0
+Cacti that thrive in deserts store water.,1
+The spider who spins creates intricate webs.,0
+Penguins that slide on ice are playful.,0
+The owl that hoots is nocturnal.,0
+The pumpkin plant that grows yields orange fruits.,1
+The monkey who swings from trees is agile.,0
+The lizard that basks in the sun warms up.,0
+Plants that produce oxygen support life.,1
+The salmon that swims upstream spawns.,0
+The butterfly that flutters has delicate wings.,0
+Chickens that cluck lay eggs.,0
+The bamboo that grows quickly is versatile.,1
+The snail that crawls leaves a shiny trail.,0
+The whale that sings communicates with others.,0
+The rose that blooms is a symbol of love.,1
+The rabbit who hops enjoys fresh greens.,0
+The tomato plant that grows yields plump tomatoes.,1
+Owls that hunt are skilled predators.,0
+The beaver that builds dams constructs with precision.,0
+The sunflower that turns follows the sun.,1
+The spider that weaves creates intricate webs.,0
+The rabbit who hops enjoys carrots.,0
+The oak that stands tall offers acorns.,1
+The elephant who trumpets communicates with others.,0
+The fox that hunts is cunning.,0
+The tulip that blooms adds beauty to gardens.,1
+The ant that works diligently builds a strong colony.,0
+The lizard that basks in the sun warms up.,0
+Cows that graze give milk.,0
+Plants that bloom attract bees.,1
+The snake who slithers hunts mice.,0
+The lion that roars marks its territory.,0
+The sunflower that turns follows the sun.,1
+The tomato plant that grows yields juicy fruits.,1
+Cacti that thrive in deserts store water.,1
+The palm tree that sways survives storms.,1
+The orchid that blooms is delicate.,1
+Seeds that sprout become new plants.,1
+The fern that unfurls loves damp soil.,1
+Grains that grow provide sustenance.,1
+The oak that stands tall offers acorns.,1
+Bees that buzz pollinate flowers.,1
+Cacti that thrive in deserts store water.,1
+The spider who spins creates intricate webs.,0
+The owl that hoots is nocturnal.,0
+Plants that produce oxygen support life.,1
+The rose that blooms is a symbol of love.,1
+The elephant who trumpets communicates with others.,0
+The rabbit who hops enjoys fresh greens.,0
+The sunflower that turns follows the sun.,1
+The beaver that builds dams constructs with precision.,0
+The tulip that blooms adds beauty to gardens.,1
+The ant that works diligently builds a strong colony.,0
+The cheetah who sprints is a fast runner.,0
+Plants that thrive in shade require less sunlight.,1
+The butterfly that flutters by brings joy to gardens.,0

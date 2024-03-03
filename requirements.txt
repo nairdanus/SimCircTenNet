@@ -5,3 +5,9 @@ opt-einsum==3.3.0
 scipy==1.11.3
 tensornetwork==0.4.6
 tqdm==4.66.1
+
+lambeq~=0.4.0
+pytket~=1.25.0
+discopy~=1.1.6
+pylatexenc~=2.10
+qiskit~=0.45.3
