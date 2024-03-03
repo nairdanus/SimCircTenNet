@@ -18,7 +18,7 @@ def get_data(dataset="100_animals_plants"):
             if filename.split(".")[1] == "csv":
                 return get_binary_from_csv(os.path.join(ABS_DATA_DIR, filename))
             elif filename.split(".")[1] == "txt":
-                raise NotImplemented
+                return get_pure_text(os.path.join(ABS_DATA_DIR, filename))
 
     raise AssertionError(f"Dataset {dataset} cannot found.")
 
@@ -39,6 +39,10 @@ def get_binary_from_csv(path):
                 data.append(row)
 
     return [tuple(x) for x in data]
+
+def get_pure_text(path):
+    with open(os.path.join(path), "r") as f:
+        return [l.strip() for l in f.readlines()]
 
 
 if __name__ == "__main__":

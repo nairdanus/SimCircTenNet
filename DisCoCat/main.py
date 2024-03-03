@@ -38,10 +38,16 @@ class DisCoCat():
         self.circuits = list(zip(self.data, self.qiskit_circuits))
 
     def get_string_diagrams(self):
-        return [self.parser.sentence2diagram(sent) for sent, _ in tqdm(self.data,
-                                                                       total=len(self.data),
-                                                                       desc="Parsing sentences",
-                                                                       ncols=150)]
+        data_iter = tqdm(self.data,
+                         total=len(self.data),
+                         desc="Parsing sentences",
+                         ncols=150)
+        if all(isinstance(s, str) for s in self.data):
+            return [self.parser.sentence2diagram(sent) for sent in data_iter]
+        if all(isinstance(s, tuple) and len(s) == 2 for s in self.data):
+            return [self.parser.sentence2diagram(sent) for sent, _ in data_iter]
+
+        raise NotImplementedError("The data is heterogeneous or this type of data is not implemented!")
 
     def get_circuit_diagrams(self):
         return [self.ansatz(sent) for sent in tqdm(self.string_diagrams,

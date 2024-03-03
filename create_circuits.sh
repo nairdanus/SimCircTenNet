@@ -42,3 +42,5 @@ read -p "How many qubits for prepositional phrases? " chosen_prep
 
 source ./venv/bin/activate
 python create_circuits.py --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$selected_file"
+
+deactivate

@@ -15,12 +15,13 @@ if __name__ == "__main__":
                         choices=[f.split(".")[0] for f in os.listdir("Data")] + os.listdir("Data"),
                         required=False)
     parser.add_argument('--ansatz', type=str, help='What Ansatz to use for the ciruits.',
-                        default="iqp", choices=["iqp", "sim14", "sim15", "StrongEnt"], required=False)
+                        default="iqp", choices=["iqp", "sim14", "sim15", "StrongEnt", "se"], required=False)
     parser.add_argument('--layers', type=int, help='How many layers to use for the Ansatz.',
                         default=1, required=False)
     parser.add_argument('--q_s', type=int, help='How many Qubits for sentences.', default=1, required=False)
     parser.add_argument('--q_n', type=int, help='How many Qubits for nouns.', default=1, required=False)
     parser.add_argument('--q_p', type=int, help='How many Qubits for prepositional phrases.', default=1, required=False)
+    parser.add_argument('--filename', type=str, help='What filename to save the 🥒-file')
     args = parser.parse_args()
 
     args.dataset = args.dataset.split(".")[0]
@@ -39,7 +40,9 @@ if __name__ == "__main__":
                            ncols=150):
         result.append((meta, qiskitCirc2qcp(circ), circ))
 
-    filename = f"{args.dataset}-{args.ansatz}_{args.layers}_{args.q_s}_{args.q_n}_{args.q_n}.pkl"
-    with open(os.path.join("createdCircuits", filename), "wb") as f:
-        print("Saving to", os.path.join("createdCircuits", filename))
+    if not args.filename:
+        args.filename = f"{args.dataset}-{args.ansatz}_{args.layers}_{args.q_s}_{args.q_n}_{args.q_n}.pkl"
+
+    with open(os.path.join("createdCircuits", args.filename), "wb") as f:
+        print("Saving to", os.path.join("createdCircuits", args.filename))
         pickle.dump(result, file=f)
