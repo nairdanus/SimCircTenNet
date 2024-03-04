@@ -1,34 +1,5 @@
 import cmath
-
-
-class Gate:
-    def __init__(self, name):
-        self.name = name
-        self.param = None
-        self.target = None
-        self.control = None
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        str = self.name
-        if (self.param is not None): str += f"({self.param})"
-        if (self.control is not None): str += f" {self.control}"
-        if (self.target is not None): str += f" {self.target}"
-        return str
-
-
-class QCPcircuit:
-    def __init__(self) -> None:
-        self.numQubits = None
-        self.gates = []
-
-    def __str__(self):
-        str = f"{self.numQubits}\n"
-        str += "\n".join([i.__str__() for i in self.gates])
-        return str
-
+from QCPcircuit import Gate, QCPcircuit
 
 def parseQCP(path):
     with open(path, "r") as fp:
@@ -48,11 +19,21 @@ def parseQCP(path):
             gate = Gate(gate_comp[0])
 
             # gates with parameters
-            if (line.startswith('r')):                
+            if (line.startswith('r')):
                 if opt.get(gate_comp[1]) is None:
                     opt[gate_comp[1]] = float(eval(gate_comp[1].replace("pi", str(cmath.pi))))
                 gate.param = opt[gate_comp[1]]
                 gate.target = int(gate_comp[2])
+                circ.gates.append(gate)
+                continue
+
+            # controlled rotation gates
+            if (line.startswith('cr')):
+                if opt.get(gate_comp[1]) is None:
+                    opt[gate_comp[1]] = float(eval(gate_comp[1].replace("pi", str(cmath.pi))))
+                gate.param = opt[gate_comp[1]]
+                gate.control = int(gate_comp[2])
+                gate.target = int(gate_comp[3])
                 circ.gates.append(gate)
                 continue
 
@@ -76,5 +57,5 @@ def parseQCP(path):
 
 
 if __name__ == "__main__":
-    c = parseQCP("code/QCPBench/small/grover_n2.qcp")
+    c = parseQCP("test_circs/misc/test1.qcp")
     print(c)

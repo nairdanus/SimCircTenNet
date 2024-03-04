@@ -1,11 +1,24 @@
+import math
 import random
 
 import numpy as np
 import tensornetwork as tn
-from parseQCP import *
 from math import sin, cos, e
 from tqdm import tqdm
+
+from QCPcircuit import QCPcircuit, Gate
+from MPS.parseQCP import parseQCP
+from helpers.angle_preparation import evaluate_angle
+
 class MPS_Simulator:
+    """
+    Self implemented MPS simulator.
+    :param circ: circuit to simulate
+    :param threshold: max_truncation_err allowed for SVD (0 for no error)
+    :param 𝓧: maximal number of singular values to keep after SVD
+    :param show_progress_bar: boolean to enable or disable progress bar
+    :param circ_name: name of the output
+    """
     network = None
     circ = None
     threshold = None
@@ -57,20 +70,20 @@ class MPS_Simulator:
 
         skip = 0
         for i, g in enumerate(pbar):
+            #
+            # if i != 0 and i % 100000 == 0:
+            #     percent = str(round((i/len(self.circ.gates))*100, 2)) + "%"
+            #     out_string = self.circ_name + " war bei mindestens: " + percent
+            #     with open(self.circ_name+"_intermediate_output.txt", "w") as of:
+            #         of.write(out_string)
 
-            if i != 0 and i % 100000 == 0:
-                percent = str(round((i/len(self.circ.gates))*100, 2)) + "%"
-                out_string = self.circ_name + " war bei mindestens: " + percent
-                with open(self.circ_name+"_intermediate_output.txt", "w") as of:
-                    of.write(out_string)
-
+            """
+            Optimisation: if angles add to 0, skip them
+            """
             if skip > 0:
                 skip -= 1
                 continue
             param = g.param
-
-            #"""
-            #if g.name == "rx":
             if g.name in ["rx","ry","rz"]:
                 name = g.name
                 angle = g.param
@@ -84,7 +97,7 @@ class MPS_Simulator:
                 param = angle
                 if angle == 0:
                     continue
-            #"""
+            """"""
             
             gate = Gate(g.name)
             gate.param = param
@@ -164,39 +177,38 @@ class MPS_Simulator:
         self.apply_gate(node, gate.target)
 
     def rx(self, gate):
-        θ = gate.param
+        θ = evaluate_angle(gate.param)
         u = np.array([
             [cos(θ/2),-1j*sin(θ/2)],
             [-1j*sin(θ/2),cos(θ/2)]
         ], dtype=complex)
         node = tn.Node(u)
         self.apply_gate(node, gate.target)
-        pass
+
     def ry(self, gate):
-        θ = gate.param
+        θ = evaluate_angle(gate.param)
         u = np.array([
             [cos(θ/2),-sin(θ/2)],
             [sin(θ/2),cos(θ/2)]
         ], dtype=complex)
         node = tn.Node(u)
         self.apply_gate(node, gate.target)
-        pass
+
     def rz(self, gate):
-        θ = gate.param
+        θ = evaluate_angle(gate.param)
         u = np.array([
             [e ** (-1j * (θ/2)),0],
             [0,e ** (1j * (θ/2))]
         ], dtype=complex)
         node = tn.Node(u)
         self.apply_gate(node, gate.target)
-        pass
 
     def swap(self, gate):
         u = np.array([
             [1, 0, 0, 0],
             [0, 0, 1, 0],
             [0, 1, 0, 0],
-            [0, 0, 0, 1],
+            [0, 0, 0, 1]
         ], dtype=complex)
         uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
 
@@ -210,13 +222,23 @@ class MPS_Simulator:
 
         self.multi_qubit_gate(ctl, tgt, uu)
 
-
     def cx(self, gate):
         u = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 0, 1],
-            [0, 0, 1, 0],
+            [0, 0, 1, 0]
+        ], dtype=complex)
+        uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
+        self.controlled(gate, uu)
+
+    def crx(self, gate):
+        θ = evaluate_angle(gate.param)
+        u = np.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, cos(θ / 2), -1j * sin(θ / 2)],
+            [0, 0, -1j * sin(θ / 2), cos(θ / 2)]
         ], dtype=complex)
         uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
         self.controlled(gate, uu)
@@ -226,20 +248,44 @@ class MPS_Simulator:
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 0, -1j],
-            [0, 0, 1j, 0],
+            [0, 0, 1j, 0]
         ], dtype=complex)
         uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
         self.controlled(gate, uu)
+
+    def cry(self, gate):
+        θ = evaluate_angle(gate.param)
+        u = np.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, cos(θ / 2), -sin(θ / 2)],
+            [0, 0, sin(θ / 2), cos(θ / 2)]
+        ], dtype=complex)
+        uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
+        self.controlled(gate, uu)
+
 
     def cz(self, gate):
         u = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 1, 0],
-            [0, 0, 0, -1],
+            [0, 0, 0, -1]
         ], dtype=complex)
         uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
         self.controlled(gate, uu)
+
+    def crz(self, gate):
+        θ = evaluate_angle(gate.param)
+        u = np.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, e ** (-1j * (θ / 2)), 0],
+            [0, 0, 0, e ** (1j * (θ / 2))]
+        ], dtype=complex)
+        uu = tn.Node(np.reshape(u, newshape=(2, 2, 2, 2)))
+        self.controlled(gate, uu)
+
 
     def controlled(self, gate, uu):
         ctl = gate.control

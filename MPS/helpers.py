@@ -1,21 +1,17 @@
-import numpy as np
-import tensornetwork as tn
-from parseQCP import *
 from simulator import *
-import os
+
 
 def v2s(v):
-    import cmath, math, functools as ft
+    import math
+    import functools as ft
 
     if len(v) == 0: return "<INVALID_VEC_LEN>"
     n = math.log2(len(v))
-    #assert n == int(n), "invalid qubit vector length"
     if n != int(n) or n < 1: return "<INVALID_VEC_LEN>"
     n = int(n)
     
     sum = ft.reduce(lambda agg,nxt: agg + abs(nxt)**2, v, 0)
     valid_sum = np.isclose([1], sum).all()
-    #assert valid_sum, "invalid qubit sum"
             
     assert n < 100
     def i():
@@ -28,7 +24,7 @@ def v2s(v):
     return " + ".join(i()) + (" (<INVALID_SUM>)" if not valid_sum else "")
 
 def s2v(s:str):
-    import cmath, math, functools as ft
+    import functools as ft
     s = s.strip()
     s = s.replace(">","⟩")
     
