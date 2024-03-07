@@ -1,3 +1,5 @@
+import random
+
 from qiskit.circuit import ParameterExpression
 import cmath
 
@@ -13,6 +15,6 @@ def evaluate_angle(θ):
 
     if isinstance(θ, ParameterExpression):
         str(θ)  # TODO: lookup for training data
-        return float(cmath.pi)
+        return float(cmath.pi*random.random())
 
     raise NotImplementedError(f"Unsupported type {type(θ)} for an angle θ!")

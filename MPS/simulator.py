@@ -9,7 +9,6 @@ from tqdm import tqdm
 from QCPcircuit import QCPcircuit, Gate
 from MPS.parseQCP import parseQCP
 from helpers.angle_preparation import evaluate_angle
-
 class MPS_Simulator:
     """
     Self implemented MPS simulator.
@@ -450,6 +449,11 @@ class MPS_Simulator:
             node.set_tensor(node.tensor / update_value)
 
 if __name__ == "__main__":
+
+    import sys
+
+    print("In module products sys.path[0], __package__ ==", sys.path[0], __package__)
+
     def test_total_prob(p, threshold=0, 𝓧=None):
         c = parseQCP(p + ".qcp")
         simulator = MPS_Simulator(c, threshold, 𝓧)

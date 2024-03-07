@@ -34,5 +34,5 @@ if __name__ == '__main__':
                                             desc="Generating images",
                                             ncols=150):
         filename = os.path.join("createdImages", f"qiskit_circ_{time.strftime('%Y%m%d-%H%M%S')}.png") \
-            if len(circuits) > 1 else "output.png"
+            if len(circuits) > 1 else "circ.png"
         qiskit_circ.draw("mpl", filename=filename)

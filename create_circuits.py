@@ -22,6 +22,9 @@ if __name__ == "__main__":
     parser.add_argument('--q_n', type=int, help='How many Qubits for nouns.', default=1, required=False)
     parser.add_argument('--q_p', type=int, help='How many Qubits for prepositional phrases.', default=1, required=False)
     parser.add_argument('--filename', type=str, help='What filename to save the 🥒-file')
+    parser.add_argument('--draw', type=bool,
+                        help='Draws example string diagram and quantum circuit. Saves to string.png and circ.png',
+                        default=False)
     args = parser.parse_args()
 
     args.dataset = args.dataset.split(".")[0]
@@ -32,6 +35,10 @@ if __name__ == "__main__":
                  q_s=args.q_s,
                  q_n=args.q_n,
                  q_p=args.q_p)
+
+    if args.draw is True:
+        d.string_diagrams[0].draw(path="string.png")
+        d.circuits[0][1].draw("mpl", filename="circ.png")
 
     result = []
     for meta, circ in tqdm(d.circuits,

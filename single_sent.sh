@@ -32,12 +32,15 @@ read -p "How many qubits for nouns? " chosen_nouns
 
 read -p "How many qubits for prepositional phrases? " chosen_prep
 
+rm "string.png"
+rm "circ.png"
+
 source ./venv/bin/activate
-python create_circuits.py --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$file" --filename "$pkl_file"
-sleep 5
-python draw_qiskit.py --path "$pkl_file"
+python create_circuits.py --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$file" --filename "$pkl_file" --draw True
+deactivate
+
 echo "Printing image..."
 sleep 2
-open "output.png"
+open "string.png"
+open "circ.png"
 
-deactivate
