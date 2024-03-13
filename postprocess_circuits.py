@@ -1,12 +1,9 @@
-import argparse
 import pickle
-
-from MPS import simulator
+from helpers. braket import v2s
+import argparse
 
 if __name__ == "__main__":
-    with open("createdSimulations/single_sentence/c-20240314-000817.pkl", "rb") as f:
-        mps = pickle.load(f)
-
-    mps
-    a = 0
+    with open("createdSimulations/single_sentence/c-20240314-003311.pkl", "rb") as f:
+        result_vec = pickle.load(f)
+    print(v2s(result_vec))
 

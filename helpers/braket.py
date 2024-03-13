@@ -13,7 +13,8 @@ def v2s(v):
             
     assert n < 100
     def i():
-        for i in range(len(v)):        
+        for i in range(len(v)):
+            if np.isclose(v[i], 0): continue
             q = '|' + format(i, '0'+str(n)+'b')[-n:] + '⟩'
             if v[i] == 0: continue
             a = v[i] if v[i].imag else v[i].real
