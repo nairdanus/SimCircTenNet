@@ -26,7 +26,7 @@ if __name__ == '__main__':
                         choices=[os.path.join("createdCircuits", f) for f in
                                  os.listdir("createdCircuits")] + os.listdir("createdCircuits"),
                         default=os.listdir("createdCircuits")[0])
-    parser.add_argument('--threshold', type=float, default=0,
+    parser.add_argument('--fidelity', type=float, default=0,
                         help='The maximal truncation error for the simulation. (Type 0 to deactivate)')
     parser.add_argument('--chi', type=int, default=None,
                         help='The 𝓧 value of the Simulation. Number of singular values to keep. (Type 0 to deactivate)')
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     else:
         raise FileNotFoundError(f"There is no file called {args.path}")
 
+    if not os.path.isdir("createdSimulations"): os.mkdir("createdSimulations")
     args.out_dir = os.path.join("createdSimulations", args.file_name)
     if not os.path.isdir(args.out_dir): os.mkdir(args.out_dir)
 
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     write_meta(time.strftime(
         f"""
 %m.%d.-%H:%M - Starting job {os.path.basename(args.path)}
-    Threshold: {args.threshold}
+    Fidelity: {args.fidelity}
     Chi: {args.chi}
 ______________________________________________________________
 """
@@ -58,7 +59,7 @@ ______________________________________________________________
                                             total=len(circuits),
                                             desc="Simulating circuits",
                                             ncols=150):
-        mps = MPS_Simulator(circ=QCP_circ, threshold=args.threshold, 𝓧=args.chi, show_progress_bar=False,
+        mps = MPS_Simulator(circ=QCP_circ, fidelity=args.fidelity, 𝓧=args.chi, show_progress_bar=False,
                             circ_name="./trash")
         mps.iterate_circ()
 

@@ -29,6 +29,8 @@ if __name__ == "__main__":
 
     args.dataset = args.dataset.split(".")[0]
 
+    if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
+
     d = DisCoCat(dataset_name=args.dataset,
                  ansatz=args.ansatz,
                  n_layers=args.layers,

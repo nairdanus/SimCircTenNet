@@ -41,6 +41,6 @@ deactivate
 
 echo "Printing image..."
 sleep 2
-open "string.png"
-open "circ.png"
+xdg-open "string.png"
+xdg-open "circ.png"
 

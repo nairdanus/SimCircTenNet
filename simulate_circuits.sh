@@ -26,14 +26,14 @@ cd ..
 
 read -p "Enter the Simulator to use (only MPS): " chosen_simulator
 
-read -p "Enter threshold: " threshold
+read -p "Enter fidelity: " fidelity
 
 read -p "Enter 𝓧: " chi
 
 source venv/bin/activate
 command="python simulate_circuits.py $chosen_simulator --file $selected_file"
-if [ -n "$threshold" ]; then
-    command+=" --threshold $threshold"
+if [ -n "$fidelity" ]; then
+    command+=" --fidelity $fidelity"
 fi
 
 if [ -n "$chi" ]; then

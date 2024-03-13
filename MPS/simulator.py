@@ -13,7 +13,7 @@ class MPS_Simulator:
     """
     Self implemented MPS simulator.
     :param circ: circuit to simulate
-    :param threshold: max_truncation_err allowed for SVD (0 for no error)
+    :param fidelity: 100 - fidelity = max_truncation_err allowed for SVD (100 fidelity means no error)
     :param 𝓧: maximal number of singular values to keep after SVD
     :param show_progress_bar: boolean to enable or disable progress bar
     :param circ_name: name of the output
@@ -26,9 +26,9 @@ class MPS_Simulator:
     show_progress_bar = None
     circ_name = None
 
-    def __init__(self, circ: QCPcircuit, threshold=0, 𝓧=None, show_progress_bar=False, circ_name="./trash"):
+    def __init__(self, circ: QCPcircuit, fidelity=100, 𝓧=None, show_progress_bar=False, circ_name="./trash"):
         self.𝓧 = 𝓧
-        self.threshold = threshold
+        self.threshold = 100 - fidelity
         self.circ = circ
         if circ is None: raise Exception("circ is None")
         self.circ_name = circ_name
@@ -451,9 +451,9 @@ if __name__ == "__main__":
 
     print("In module products sys.path[0], __package__ ==", sys.path[0], __package__)
 
-    def test_total_prob(p, threshold=0, 𝓧=None):
+    def test_total_prob(p, fidelity=100, 𝓧=None):
         c = parseQCP(p + ".qcp")
-        simulator = MPS_Simulator(c, threshold, 𝓧)
+        simulator = MPS_Simulator(c, fidelity, 𝓧)
         simulator.iterate_circ()
 
         mps = list(tn.copy(simulator.network)[0].values())
@@ -465,9 +465,9 @@ if __name__ == "__main__":
         aaa = tn.contractors.auto(mps+mps_2, ignore_edge_order=True)
         print("Total probability: ", abs(aaa.tensor.item()))
 
-    def test_result(p, threshold=0, 𝓧=None):
+    def test_result(p, fidelity=100, 𝓧=None):
         c = parseQCP(p + ".qcp")
-        simulator = MPS_Simulator(c, threshold, 𝓧)
+        simulator = MPS_Simulator(c, fidelity, 𝓧)
         simulator.iterate_circ()
         result = simulator.get_result()
         r = simulator.get_state_vector(result)
