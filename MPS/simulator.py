@@ -69,13 +69,6 @@ class MPS_Simulator:
 
         skip = 0
         for i, g in enumerate(pbar):
-            #
-            # if i != 0 and i % 100000 == 0:
-            #     percent = str(round((i/len(self.circ.gates))*100, 2)) + "%"
-            #     out_string = self.circ_name + " war bei mindestens: " + percent
-            #     with open(self.circ_name+"_intermediate_output.txt", "w") as of:
-            #         of.write(out_string)
-
             """
             Optimisation: if angles add to 0, skip them
             """
@@ -364,10 +357,14 @@ class MPS_Simulator:
             l = [dangling[0], non_dangling[0]]
             r = [dangling[1], non_dangling[1]]
 
-
-        u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,
-                                max_truncation_err = self.threshold,
-                                max_singular_values = self.𝓧)
+        try:
+            u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,
+                                    max_truncation_err = self.threshold,
+                                    max_singular_values = self.𝓧)
+        except np.linalg.LinAlgError as LinAlgError:
+            print("Following tensor did not converge:")
+            print(new_node.tensor)
+            raise LinAlgError
 
         self.network[ctl] = u
         self.network[tgt] = vh
