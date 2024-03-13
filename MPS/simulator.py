@@ -1,4 +1,3 @@
-import math
 import random
 
 import numpy as np
@@ -9,6 +8,9 @@ from tqdm import tqdm
 from QCPcircuit import QCPcircuit, Gate
 from MPS.parseQCP import parseQCP
 from helpers.angle_preparation import evaluate_angle
+from typing import (Optional, Text)
+
+
 class MPS_Simulator:
     """
     Self implemented MPS simulator.
@@ -26,9 +28,14 @@ class MPS_Simulator:
     show_progress_bar = None
     circ_name = None
 
-    def __init__(self, circ: QCPcircuit, fidelity=100, 𝓧=None, show_progress_bar=False, circ_name="./trash"):
+    def __init__(self, 
+                 circ: QCPcircuit, 
+                 fidelity: Optional[float] = None,
+                 𝓧: Optional[int] = None,
+                 show_progress_bar: Optional[bool] = False,
+                 circ_name: Optional[Text] = "./trash"):
         self.𝓧 = 𝓧
-        self.threshold = 100 - fidelity
+        self.threshold = None if not fidelity or fidelity == 100 else 100 - fidelity
         self.circ = circ
         if circ is None: raise Exception("circ is None")
         self.circ_name = circ_name
@@ -361,6 +368,7 @@ class MPS_Simulator:
             u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,
                                     max_truncation_err = self.threshold,
                                     max_singular_values = self.𝓧)
+            
         except np.linalg.LinAlgError as LinAlgError:
             print("Following tensor did not converge:")
             print(new_node.tensor)

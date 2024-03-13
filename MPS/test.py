@@ -1,9 +1,6 @@
-import numpy as np
-import tensornetwork as tn
-from parseQCP import *
-from simulator import *
+from MPS.simulator import parseQCP, MPS_Simulator
 import os
-from helpers import *
+from helpers.braket import v2s, s2v
 import sys
 import argparse
 
@@ -28,16 +25,15 @@ def folder_iterator(dir):
             yield path, name
 
 
-if __name__ == "__main__":
-    arg_parse = argparse.ArgumentParser()
-    arg_parse.add_argument("--subdir", type=str, default="", help="Subdirectory of the test_circ folder.")
-    arg_parse.add_argument("--verbose", type=bool, default=False,
-                       help="Activating/Deactivating print of correct circuits.")
-    arg_parse.add_argument("--show_vec", type=bool, default=False,
-                       help="Activating/Deactivating print of vector representation.")
-    args = arg_parse.parse_args()
+def test_simulator(verbose=False, show_vec=False, subdir=""):
+    """
+    Test the simulator.
+    :param verbose: Activating/Deactivating print of correct circuits.
+    :param show_vec: Activating/Deactivating print of vector representation.
+    :param subdir: The subdirectory of the test_circ folder.
+    """
 
-    root_dir = os.path.join("./test_circs/", args.subdir)
+    root_dir = os.path.join("./test_circs/", subdir)
 
     fail = False
     for path, name in folder_iterator(root_dir):
@@ -56,38 +52,30 @@ if __name__ == "__main__":
             ok_vals = [o if not isinstance(o, str) else s2v(o) for o in ok_vals]
 
             expected = list([np.array(o, dtype=complex) for o in ok_vals])
-            if args.verbose:
+            if verbose:
                 print("running test:", name)
             c = parseQCP(path)
             simulator = MPS_Simulator(c)
             simulator.iterate_circ()
 
 
-            #0100100011
-            #m = simulator.measure_states(["0100100011"[::-1]])
-            #m = simulator.measure_states(["0100100011"])
-            #m = simulator.measure_states(["0100100011"])
-            #m = simulator.measure_states(["001"])
-            #print("measured state:", m)
-
             result = simulator.get_result()
             r = simulator.get_state_vector(result)
-            #r = np.reshape(result.tensor, newshape=(2**simulator.circ.numQubits))
             
             test_ok = any([compare(r, e) for e in expected])
             if test_ok:
-                if args.verbose:
+                if verbose:
                     print("  PASS")
                     print("      :", v2s(r))
             else:
                 print("  FAIL")
                 print("    RESULT:")
-                if args.show_vec:
+                if show_vec:
                     print("          :", ",".join(str(r).split(" "))       )
                 print("          :", v2s(r))
                 #print(result.tensor)
                 print("    EXPECT:")
-                if args.show_vec:
+                if show_vec:
                     print(expected[0])
                 print("          :", v2s(expected[0]))
                 for e in expected[1:]:

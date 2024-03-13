@@ -1,10 +1,8 @@
-from simulator import *
-
+import numpy as np
+import math
+import functools as ft
 
 def v2s(v):
-    import math
-    import functools as ft
-
     if len(v) == 0: return "<INVALID_VEC_LEN>"
     n = math.log2(len(v))
     if n != int(n) or n < 1: return "<INVALID_VEC_LEN>"

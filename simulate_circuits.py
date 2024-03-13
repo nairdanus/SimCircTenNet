@@ -26,7 +26,7 @@ if __name__ == '__main__':
                         choices=[os.path.join("createdCircuits", f) for f in
                                  os.listdir("createdCircuits")] + os.listdir("createdCircuits"),
                         default=os.listdir("createdCircuits")[0])
-    parser.add_argument('--fidelity', type=float, default=0,
+    parser.add_argument('--fidelity', type=float, default=None,
                         help='The maximal truncation error for the simulation. (Type 0 to deactivate)')
     parser.add_argument('--chi', type=int, default=None,
                         help='The 𝓧 value of the Simulation. Number of singular values to keep. (Type 0 to deactivate)')
@@ -64,7 +64,7 @@ ______________________________________________________________
         mps.iterate_circ()
 
         with open(os.path.join(args.out_dir, time.strftime('c-%Y%m%d-%H%M%S.pkl')), "wb") as f:
-            pickle.dump(mps.get_result(), f)
+            pickle.dump(mps.get_state_vector(mps.get_result()), f)
         write_meta(time.strftime(f"%m.%d.-%H:%M - Simulated circuit {meta}\n"))
 
     end_meta = "______________________________________________________________\n"

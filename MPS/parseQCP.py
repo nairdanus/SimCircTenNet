@@ -54,8 +54,3 @@ def parseQCP(path):
             gate.target = int(gate_comp[1])
             circ.gates.append(gate)
     return circ
-
-
-if __name__ == "__main__":
-    c = parseQCP("test_circs/misc/test1.qcp")
-    print(c)
