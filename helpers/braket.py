@@ -2,7 +2,7 @@ import numpy as np
 import math
 import functools as ft
 
-def v2s(v):
+def v2s(v, ignore_small_values=False):
     if len(v) == 0: return "<INVALID_VEC_LEN>"
     n = math.log2(len(v))
     if n != int(n) or n < 1: return "<INVALID_VEC_LEN>"
@@ -14,7 +14,7 @@ def v2s(v):
     assert n < 100
     def i():
         for i in range(len(v)):
-            if np.isclose(v[i], 0): continue
+            if ignore_small_values and np.isclose(v[i], 0, atol=1.e-3): continue
             q = '|' + format(i, '0'+str(n)+'b')[-n:] + '⟩'
             if v[i] == 0: continue
             a = v[i] if v[i].imag else v[i].real

@@ -76,9 +76,8 @@ class MPS_Simulator:
 
         skip = 0
         for i, g in enumerate(pbar):
-            """
-            Optimisation: if angles add to 0, skip them
-            """
+
+            """ Optimisation: if angles add to 0, skip them """
             if skip > 0:
                 skip -= 1
                 continue
@@ -107,10 +106,13 @@ class MPS_Simulator:
                 pbar.set_description(gate.name)
             getattr(self, gate.name)(gate)
 
-            
 
-
-    def get_state_vector(self, node: tn.Node):
+    def get_state_vector(self):
+        """
+        Runs contract_mps and returns the state vector of the MPS.
+        The order is corrected according to self.indices.
+        """
+        node = self.contract_mps()
         vec = np.reshape(node.tensor, newshape=(2**self.circ.numQubits))
         vec2 = np.copy(vec)
         indices = self.indices
@@ -122,14 +124,18 @@ class MPS_Simulator:
                 q2 = indices.index(q)
                 ii = ii | (old << q2)
 
-            n = self.circ.numQubits
-
             vec2[i] = vec[ii]
 
         return vec2
 
-    def get_result(self):
+    def contract_mps(self) -> tn.Node:
+        """
+        Contracts all connected edges of the MPS.
+        Returns a Node having as many edges as the MPS has.
+        The original MPS is kept in self.network.
+        """
         mps = self.network
+        mps_copy = list(tn.copy(self.network)[0].values())
 
         # edge case 1
         if len(mps) < 2:
@@ -151,6 +157,8 @@ class MPS_Simulator:
         for m in mps:
             de.append(m.get_all_dangling().pop())
         result = tn.contractors.auto(mps, output_edge_order=de)
+
+        self.network = mps_copy
 
         return result
 
@@ -366,9 +374,9 @@ class MPS_Simulator:
 
         try:
             u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,
-                                    max_truncation_err = self.threshold,
-                                    max_singular_values = self.𝓧)
-            
+                                     max_truncation_err=self.threshold,
+                                     max_singular_values=self.𝓧)
+
         except np.linalg.LinAlgError as LinAlgError:
             print("Following tensor did not converge:")
             print(new_node.tensor)
@@ -378,6 +386,12 @@ class MPS_Simulator:
         self.network[tgt] = vh
 
     def measure_states(self, states: list[str]) -> dict[str, float]:
+        """
+        Measure the probability of a given state.
+        :param states: The states of the qubits. e.g. ["0001", "0010", "0011", "0100"]
+        :return: A dictionary containing the probability of each state in the given states.
+                e.g. {"0001": 0.1, "0010":0.2, ...}
+        """
         output = dict()
         for state_string in states:
             state = list([int(i) for i in state_string])
@@ -400,6 +414,9 @@ class MPS_Simulator:
     shrink_after_measure = True
 
     def measure(self, gate):
+        """
+        Applies the measurement gate. Each measured qubit will be added to self.measured.
+        """
         mps = list(tn.copy(self.network)[0].values())
         mps_2 = list(tn.copy(self.network)[0].values())
         measure_node = tn.Node(np.array([[1, 0], [0, 0]], dtype=complex))
@@ -429,7 +446,7 @@ class MPS_Simulator:
 
         if not self.shrink_after_measure:
             return
-        
+
         # shrink tensors
         for x in [i for i, n in enumerate(self.network) if n != new_node]:
             eye = tn.Node(np.reshape(np.eye(4, dtype=complex), newshape=(2, 2, 2, 2)))
@@ -477,7 +494,7 @@ if __name__ == "__main__":
         c = parseQCP(p + ".qcp")
         simulator = MPS_Simulator(c, fidelity, 𝓧)
         simulator.iterate_circ()
-        result = simulator.get_result()
+        result = simulator.contract_mps()
         r = simulator.get_state_vector(result)
         from helpers import v2s
         print(v2s(r))

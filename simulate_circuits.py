@@ -64,7 +64,7 @@ ______________________________________________________________
         mps.iterate_circ()
 
         with open(os.path.join(args.out_dir, time.strftime('c-%Y%m%d-%H%M%S.pkl')), "wb") as f:
-            pickle.dump(mps.get_state_vector(mps.get_result()), f)
+            pickle.dump((mps, meta), f)
         write_meta(time.strftime(f"%m.%d.-%H:%M - Simulated circuit {meta}\n"))
 
     end_meta = "______________________________________________________________\n"

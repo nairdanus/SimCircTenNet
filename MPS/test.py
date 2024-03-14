@@ -59,7 +59,7 @@ def test_simulator(verbose=False, show_vec=False, subdir=""):
             simulator.iterate_circ()
 
 
-            result = simulator.get_result()
+            result = simulator.contract_mps()
             r = simulator.get_state_vector(result)
             
             test_ok = any([compare(r, e) for e in expected])

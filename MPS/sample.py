@@ -29,7 +29,7 @@ if __name__ == "__main__":
                 simulator = MPS_Simulator(c)
                 simulator.shrink_after_measure = False
                 simulator.iterate_circ()
-                result = simulator.get_result()
+                result = simulator.contract_mps()
                 v = simulator.get_state_vector(result)
                 v = np.round(v, decimals=5)
                 s = v2s(v)
