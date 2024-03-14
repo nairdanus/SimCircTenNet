@@ -37,10 +37,14 @@ rm "circ.png"
 
 source ./venv/bin/activate
 python create_circuits.py --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$file" --filename "$pkl_file" --draw True
-deactivate
 
 echo "Printing image..."
 sleep 2
 xdg-open "string.png"
 xdg-open "circ.png"
-
+sleep 2
+if [ -d "createdSimulations/single_sentence" ]; then
+  rm -rf createdSimulations/single_sentence
+fi
+./simulate.sh createdCircuits/single_sentence.pkl
+./postprocess.sh createdSimulations/single_sentence

@@ -59,9 +59,11 @@ if __name__ == "__main__":
         result = parse_ket(v2s(result_vec, ignore_small_values=True))
         best_result = max(result.items(), key=lambda x: x[1])
 
+        print()
         print(meta)
         print("{0}: {1}, {2}".format(*best_result,
                                 meta[1] == best_result[0]))
+        print(result)
         print()
 
 
