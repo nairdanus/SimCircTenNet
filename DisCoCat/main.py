@@ -34,6 +34,7 @@ class DisCoCat():
                                                                             total=len(self.circuit_diagrams),
                                                                             desc="Translating diagrams to Qiskit",
                                                                             ncols=150)]
+        # self.circuit_diagrams[0].draw(path="circ_dia.png")
 
         self.circuits = list(zip(self.data, self.qiskit_circuits))
 

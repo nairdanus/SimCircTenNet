@@ -430,7 +430,8 @@ class MPS_Simulator:
                 m.get_all_dangling()[0] ^ m1.get_all_dangling()[0]
 
         prob_0_tgt = abs(tn.contractors.auto(mps + mps_2 + [measure_node], ignore_edge_order=True).tensor.item())
-        measured = random.choices([0,1], [prob_0_tgt, 1-prob_0_tgt])[0]
+        measured = 0  # random.choices([0,1], [prob_0_tgt, 1-prob_0_tgt])[0]
+        # TODO: add possibility of deactivating 'post selection'
 
         update_value = np.sqrt(prob_0_tgt) if measured == 0 else np.sqrt(1-prob_0_tgt)
         if measured == 0:
