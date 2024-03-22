@@ -10,7 +10,7 @@ def get_data(dataset="100_animals_plants"):
 
     :param dataset: The dataset to be used
                     Default: 100_animals_plants
-                    Options: 100_animals_plants
+                    Options: 100_animals_plants, ...
     :return: Depending on dataset (e.g. tuple of sent, label)
     """
     for filename in os.listdir(ABS_DATA_DIR):

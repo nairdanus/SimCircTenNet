@@ -3,6 +3,7 @@ import os
 from helpers.braket import v2s, s2v
 import sys
 import argparse
+import numpy as np
 
 
 def compare(a, b):

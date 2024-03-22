@@ -21,6 +21,7 @@ echo "$choice" > "$file"
 
 cd ..
 
+read -p "Enter the syntax model (pregroup, bagofwords, sequential): " chosen_syntax
 
 read -p "Enter the Ansatz (iqp, sim14, sim15, StrongEnt): " chosen_ansatz
 
@@ -36,12 +37,11 @@ rm "string.png"
 rm "circ.png"
 
 source ./venv/bin/activate
-python create_circuits.py --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$file" --filename "$pkl_file" --draw True
+python create_circuits.py --syntax "$chosen_syntax" --ansatz "$chosen_ansatz" --layers "$chosen_layers" --q_n "$chosen_nouns" --q_s "$chosen_sents" --dataset "$file" --filename "$pkl_file" --draw True
 
-echo "Printing image..."
+echo "Printing images..."
 sleep 2
 xdg-open "string.png"
-xdg-open "circ.png"
 sleep 2
 if [ -d "createdSimulations/single_sentence" ]; then
   rm -rf createdSimulations/single_sentence
