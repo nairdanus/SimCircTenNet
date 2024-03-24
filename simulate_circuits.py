@@ -2,7 +2,7 @@ import argparse
 import os
 import pickle
 import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from tqdm import tqdm
 
@@ -62,8 +62,8 @@ ______________________________________________________________
         mps = MPS_Simulator(circ=QCP_circ, fidelity=args.fidelity, 𝓧=args.chi, show_progress_bar=False,
                             circ_name="./trash")
         mps.iterate_circ()
-
-        with open(os.path.join(args.out_dir, time.strftime('c-%Y%m%d-%H%M%S.pkl')), "wb") as f:
+        pickle_name = datetime.utcnow().strftime('c-%Y%m%d-%H%M%S%f.pkl')
+        with open(os.path.join(args.out_dir, pickle_name), "wb") as f:
             pickle.dump((mps, meta), f)
         write_meta(time.strftime(f"%m.%d.-%H:%M - Simulated circuit {meta}\n"))
 

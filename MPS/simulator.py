@@ -27,6 +27,11 @@ class MPS_Simulator:
     indices = None
     show_progress_bar = None
     circ_name = None
+    measured_gates = None
+    unmeasured_gates = None
+    shrink_after_measure = True
+
+    post_selection = False
 
     def __init__(self, 
                  circ: QCPcircuit, 
@@ -42,6 +47,8 @@ class MPS_Simulator:
         self.network = self.create_MPS()
         self.indices = list(range(len(self.network)))
         self.show_progress_bar = show_progress_bar
+        self.measured_gates = set()
+        self.unmeasured_gates = set()
 
 
     def create_MPS(self):
@@ -70,12 +77,27 @@ class MPS_Simulator:
     def iterate_circ(self):
         if self.circ is None: raise Exception("circ is None")
         
-        pbar = self.circ.gates
-        if self.show_progress_bar:
-            pbar = tqdm(self.circ.gates, ncols=100)
-
+        pbar = tqdm(self.circ.gates, ncols=100) if self.show_progress_bar else self.circ.gates
         skip = 0
         for i, g in enumerate(pbar):
+            if self.post_selection and g.name == "measure":
+                # TODO: add a check if circ ends in measurements.
+                # TODO: Problem that you can have measure 0, cx 1 2, measure 1, measure 2
+                # if not all(x.name == "measure" for x in pbar.iterable[i:]):
+                #     raise NotImplementedError(
+                #         "Postselection is set, but the circuit does not end in measure Gates.\n"
+                #         "This is unexpected. Every circuit here should end with a measurement gate."
+                #     )
+                self.measured_gates.add(self.indices.index(g.target))
+                if i+1 == len(pbar):
+                    self.unmeasured_gates = set(range(self.circ.numQubits)).difference(self.measured_gates)
+                    if self.show_progress_bar:
+                        pbar.close()
+                    break
+                else:
+                    continue
+
+
 
             """ Optimisation: if angles add to 0, skip them """
             if skip > 0:
@@ -112,6 +134,14 @@ class MPS_Simulator:
         Runs contract_mps and returns the state vector of the MPS.
         The order is corrected according to self.indices.
         """
+        if self.post_selection:
+            node = self.contract_mps_postselection()
+            if len(node.edges) != 1:
+                raise NotImplementedError(
+                    f"Number of edges is {len(node.edges)}. Only binary classification possible at the moment."
+                )
+            return node.tensor
+
         node = self.contract_mps()
         vec = np.reshape(node.tensor, newshape=(2**self.circ.numQubits))
         vec2 = np.copy(vec)
@@ -134,8 +164,7 @@ class MPS_Simulator:
         Returns a Node having as many edges as the MPS has.
         The original MPS is kept in self.network.
         """
-        mps = self.network
-        mps_copy = list(tn.copy(self.network)[0].values())
+        mps = list(tn.copy(self.network)[0].values())
 
         # edge case 1
         if len(mps) < 2:
@@ -158,8 +187,24 @@ class MPS_Simulator:
             de.append(m.get_all_dangling().pop())
         result = tn.contractors.auto(mps, output_edge_order=de)
 
-        self.network = mps_copy
+        return result
 
+    def contract_mps_postselection(self) -> tn.Node:
+        """
+        Contracts the MPS with the assumption that all nodes measured 0,
+        except the node with index node_index.
+        Returns the contracted mps: one node with one dimension (vector).
+        The original MPS is kept in self.network.
+        """
+        mps = list(tn.copy(self.network)[0].values())
+        zero_nodes = []
+
+        for mgi in self.measured_gates:
+            node = tn.Node(np.array([1, 0], dtype=complex))
+            node.edges[0] ^ mps[mgi].get_all_dangling()[0]
+            zero_nodes.append(node)
+
+        result = tn.contractors.auto(mps+zero_nodes, ignore_edge_order=True)
         return result
 
     def apply_gate(self, gate, target):
@@ -321,6 +366,15 @@ class MPS_Simulator:
             self.multi_qubit_gate_low(i, i+1, get_swap())
             if index_optim:
                 self.indices[i], self.indices[i + 1] = self.indices[i + 1], self.indices[i]
+                if self.post_selection and (intersect := self.measured_gates.intersection({i, i + 1})):
+                    if len(intersect) == 2:
+                        pass
+                    elif i in self.measured_gates:
+                        self.measured_gates.remove(i)
+                        self.measured_gates.add(i+1)
+                    elif i+1 in self.measured_gates:
+                        self.measured_gates.remove(i+1)
+                        self.measured_gates.add(i)
 
         assert goto+1 == tgt
         self.multi_qubit_gate_low(goto, goto+1, uu)
@@ -411,11 +465,9 @@ class MPS_Simulator:
             output[state_string] = abs(result.tensor.item())**2
         return output
 
-    shrink_after_measure = True
-
     def measure(self, gate):
         """
-        Applies the measurement gate. Each measured qubit will be added to self.measured.
+        Applies the measurement gate.
         """
         mps = list(tn.copy(self.network)[0].values())
         mps_2 = list(tn.copy(self.network)[0].values())
@@ -430,9 +482,8 @@ class MPS_Simulator:
                 m.get_all_dangling()[0] ^ m1.get_all_dangling()[0]
 
         prob_0_tgt = abs(tn.contractors.auto(mps + mps_2 + [measure_node], ignore_edge_order=True).tensor.item())
-        measured = 0  # random.choices([0,1], [prob_0_tgt, 1-prob_0_tgt])[0]
-        # TODO: add possibility of deactivating 'post selection'
-
+        # measured = random.choices([0,1], [prob_0_tgt, 1-prob_0_tgt])[0]
+        measured = 0
         update_value = np.sqrt(prob_0_tgt) if measured == 0 else np.sqrt(1-prob_0_tgt)
         if measured == 0:
             update_matrix = np.array([[1/update_value,0], [0,0]], dtype=complex)
