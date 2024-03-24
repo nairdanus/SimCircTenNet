@@ -40,7 +40,7 @@ class DisCoCat():
 
         self.data = data_preparation.get_data(dataset_name)
         match syntax_model.lower():
-            case "pregroup" | "bobcat" | "bobcatparser":
+            case "pre" | "pregroup" | "bobcat":
                 self.parser = BobcatParser(verbose='text')
             case "bow" | "bagofwords" | "bag-of-words":
                 self.parser = spiders_reader

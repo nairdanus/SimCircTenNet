@@ -31,7 +31,7 @@ class MPS_Simulator:
     unmeasured_gates = None
     shrink_after_measure = True
 
-    post_selection = False
+    post_selection = True
 
     def __init__(self, 
                  circ: QCPcircuit, 

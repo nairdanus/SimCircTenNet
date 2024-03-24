@@ -4,6 +4,8 @@ from helpers. braket import v2s
 import argparse
 from collections import defaultdict
 
+from MPS import MPS_Simulator
+
 def remove_equal_parts(str1, str2):
     result_str1 = ""
     result_str2 = ""
@@ -63,18 +65,26 @@ if __name__ == "__main__":
         with open(file, "rb") as f:
             simulator, meta = pickle.load(f)
 
-        result_vec = simulator.get_state_vector()
-        if len(result_vec) != 2:
-            result = remove_equal_bits(parse_ket(v2s(result_vec, ignore_small_values=True)))
+        if type(simulator) == MPS_Simulator:
+            result_vec = simulator.get_state_vector()
+            if len(result_vec) != 2:
+                result = remove_equal_bits(parse_ket(v2s(result_vec, ignore_small_values=True)))
+            else:
+                result = parse_ket(v2s(result_vec, ignore_small_values=False))
+
+            best_result = max(result.items(), key=lambda x: x[1])
+
+            print()
+            print(meta)
+            print("{0}: {1}, {2}".format(*best_result,
+                                    meta[1] == best_result[0]))
+            print()
+
+        elif type(simulator) == dict:
+            print(meta)
+            print(simulator)
+
         else:
-            result = parse_ket(v2s(result_vec, ignore_small_values=False))
-
-        best_result = max(result.items(), key=lambda x: x[1])
-
-        print()
-        print(meta)
-        print("{0}: {1}, {2}".format(*best_result,
-                                meta[1] == best_result[0]))
-        print()
+            raise NotImplementedError(f"Unrecognized simulator of type {type(simulator)}!")
 
 

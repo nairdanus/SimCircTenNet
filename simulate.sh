@@ -12,7 +12,7 @@ if [ -z "$1" ]; then
   circs=(*)
   echo "Please enter which circuits to simulate (choose from the following)"
   for ((i=0; i<${#circs[@]}; i++)); do
-    echo "$((i+1)) ${circs[i]}"
+    echo "$((i+1)))  ${circs[i]}"
   done
   read -p "Enter a pickle file (number): " choice
   # Validate the input
@@ -29,7 +29,23 @@ else
 fi
 
 
-read -p "Enter the Simulator to use (only MPS): " chosen_simulator
+PS3="Enter the Simulator number: "
+options=("Personal_MPS" "Qiskit_MPS")
+select chosen_ansatz in "${options[@]}"; do
+    case $chosen_ansatz in
+        "Personal_MPS")
+            echo "You chose my personal MPS"
+            break
+            ;;
+        "Qiskit_MPS")
+            echo "You chose Qiskit's AerSimulator MPS"
+            break
+            ;;
+        *)
+            echo "Invalid option. Please select a number from 1 to 4."
+            ;;
+    esac
+done
 
 read -p "Enter fidelity: " fidelity
 

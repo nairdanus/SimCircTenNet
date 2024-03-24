@@ -3,8 +3,10 @@ import os
 import pickle
 import time
 from datetime import timedelta, datetime
-
 from tqdm import tqdm
+
+# Import Qiskit
+from qiskit_aer import AerSimulator
 
 from MPS.simulator import MPS_Simulator
 
@@ -20,7 +22,9 @@ def write_meta(input: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('simulator', choices=['mps'], default="mps", help="What simulator to use.")
+    parser.add_argument('--simulator', default="Personal_MPS",
+                        help="What simulator to use.",
+                        choices=['Personal_MPS', 'Qiskit_MPS'])
     parser.add_argument('--file', type=str,
                         help='Path of the 🥒-file containing the circuits. ',
                         choices=[os.path.join("createdCircuits", f) for f in
@@ -59,12 +63,20 @@ ______________________________________________________________
                                             total=len(circuits),
                                             desc="Simulating circuits",
                                             ncols=150):
-        mps = MPS_Simulator(circ=QCP_circ, fidelity=args.fidelity, 𝓧=args.chi, show_progress_bar=False,
+        if args.simulator == "Personal_MPS":
+            simulator = MPS_Simulator(circ=QCP_circ, fidelity=args.fidelity, 𝓧=args.chi, show_progress_bar=False,
                             circ_name="./trash")
-        mps.iterate_circ()
-        pickle_name = datetime.utcnow().strftime('c-%Y%m%d-%H%M%S%f.pkl')
+            simulator.iterate_circ()
+            result = simulator
+        elif args.simulator == "Qiskit_MPS":
+            simulator = AerSimulator(method='matrix_product_state')
+            result = simulator.run(qiskit_circ).result().data(0)
+        else:
+            raise NotImplementedError("Simulator not available.")
+
+        pickle_name = datetime.now().strftime('c-%Y%m%d-%H%M%S%f.pkl')
         with open(os.path.join(args.out_dir, pickle_name), "wb") as f:
-            pickle.dump((mps, meta), f)
+            pickle.dump((result, meta), f)
         write_meta(time.strftime(f"%m.%d.-%H:%M - Simulated circuit {meta}\n"))
 
     end_meta = "______________________________________________________________\n"

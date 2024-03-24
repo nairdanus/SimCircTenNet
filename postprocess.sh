@@ -13,7 +13,7 @@ if [ -z "$1" ]; then
   circs=(*)
   echo "Please enter which simulations to process (choose from the following)"
   for ((i=0; i<${#circs[@]}; i++)); do
-    echo "$((i+1)) ${circs[i]}"
+    echo "$((i+1))) ${circs[i]}"
   done
   read -p "Enter a directory (number): " choice
   # Validate the input
@@ -29,7 +29,8 @@ else
   selected_dir="$1"
 fi
 
-source venv/bin/activate
 command="python postprocess_circuits.py --dir $selected_dir"
+
+source venv/bin/activate
 eval $command
 deactivate

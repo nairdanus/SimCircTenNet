@@ -11,7 +11,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creates all circuits of a dataset. Saves a 🥒-file in the format '
                                                  'tuple((sentence, label), QCP-Circuit, qiskit-circuit))')
     parser.add_argument('--syntax', type=str, help="What syntax model should be used. Pregroup, bag-of-words or sequential.", default="pregroup", 
-                        choices=["pregroup", "bow", "seq"])
+                        choices=["pregroup", "pre", "bobcat",
+                                 "bow", "bagofwords", "bag-of-words",
+                                 "seq", "sequential"])
     parser.add_argument('--dataset', type=str, help='Wich dataset to use for creating the circuits.',
                         default="10_animals_plants",
                         choices=[f.split(".")[0] for f in os.listdir("Data")] + os.listdir("Data"),
