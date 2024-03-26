@@ -3,6 +3,8 @@ import random
 from qiskit.circuit import ParameterExpression
 import cmath
 
+import yaml
+
 def evaluate_angle(θ):
     """
     Evaluates the angle θ. Specifically for ParameterExpression containing
@@ -14,7 +16,31 @@ def evaluate_angle(θ):
         return θ
 
     if isinstance(θ, ParameterExpression):
-        str(θ)  # TODO: lookup for training data
-        return float(cmath.pi*random.random())
+        with open('angles.yaml', 'r') as yaml_file:
+            angles = yaml.safe_load(yaml_file)
+        if not str(θ) in angles.keys():
+            angles[str(θ)] = float(cmath.pi*random.random())
+
+        with open('angles.yaml', 'w') as yaml_file:
+            yaml.dump(angles, yaml_file)
+
+        return angles[str(θ)]
 
     raise NotImplementedError(f"Unsupported type {type(θ)} for an angle θ!")
+
+def get_angles(angle_names: set[str]):
+    with open('angles.yaml', 'r') as yaml_file:
+        angles = yaml.safe_load(yaml_file)
+
+    return {n: angles[n] for n in angle_names}
+
+
+def update_angles(updated_angles: dict[str, float]):
+    with open('angles.yaml', 'r') as yaml_file:
+        angles = yaml.safe_load(yaml_file)
+
+    for k, v in updated_angles.items():
+        angles[k] = v
+
+    with open('angles.yaml', 'w') as yaml_file:
+        yaml.dump(angles, yaml_file)

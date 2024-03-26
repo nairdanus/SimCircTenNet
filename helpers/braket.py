@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 import math
 import functools as ft
@@ -7,10 +9,10 @@ def v2s(v, ignore_small_values=False):
     n = math.log2(len(v))
     if n != int(n) or n < 1: return "<INVALID_VEC_LEN>"
     n = int(n)
-    
+
     sum = ft.reduce(lambda agg,nxt: agg + abs(nxt)**2, v, 0)
     valid_sum = np.isclose([1], sum).all()
-            
+
     assert n < 100
     def i():
         for i in range(len(v)):
@@ -26,7 +28,7 @@ def s2v(s:str):
     import functools as ft
     s = s.strip()
     s = s.replace(">","⟩")
-    
+
     bs = " (<INVALID_SUM>)"
     if s.endswith(bs):
         #print("warning:"+bs) ignore
@@ -54,7 +56,31 @@ def s2v(s:str):
         res[ket] = amp
     return res
 
-if __name__ == "__main__":    
+def s2d(s:str):
+    def renormalize_dict(d):
+        return {key: value / sum(d.values()) for key, value in d.items()}
+
+    invalid_sum = False
+    if s.endswith(' (<INVALID_SUM>)'):
+        invalid_sum = True
+        ket = s.replace(' (<INVALID_SUM>)', '')
+
+    ket_elements = s.split(" + ")
+    res = defaultdict(float)
+    for ket_element in ket_elements:
+        p, bits = ket_element.split("|")
+        bits = bits.replace("⟩", "")
+        p = abs(complex(p)) ** 2
+        res[bits] = p
+
+    return renormalize_dict(dict(res)) if invalid_sum else dict(res)
+
+def v2d(v, ignore_small_values=False):
+    s2d(v2s(v, ignore_small_values))
+
+
+
+if __name__ == "__main__":
     #a = [0.70710678+0.j, 0.        +0.j, 0.70710678+0.j, 0.        +0.j]
     #a = [0.4+0.3j,0.4,0.3j,0,0,0,0,0]
     #a = [1,0,0,0,0,0,0,0]
@@ -63,7 +89,7 @@ if __name__ == "__main__":
     #a = [1,0,0,0,0]
     #a= [0,1]
     #a = [1,-2,3j,-4j,5+6j,-7-8j,0,0]
-    
+
     s = v2s(np.array(a, dtype=complex))
     v = s2v(s)
 

@@ -1,10 +1,11 @@
 import os
 import pickle
-from helpers. braket import v2s
 import argparse
 from collections import defaultdict
+import numpy as np
 
 from MPS import MPS_Simulator
+from helpers. braket import v2d
 
 def remove_equal_parts(str1, str2):
     result_str1 = ""
@@ -22,26 +23,6 @@ def remove_equal_bits(d):
     res[k_0] = d[list(d.keys())[0]]
     res[k_1] = d[list(d.keys())[1]]
     return dict(res)
-
-def renormalize_dict(d):
-    return {key: value / sum(d.values()) for key, value in d.items()}
-
-def parse_ket(ket):
-    invalid_sum = False
-    if ket.endswith(' (<INVALID_SUM>)'):
-        invalid_sum = True
-        ket = ket.replace(' (<INVALID_SUM>)', '')
-
-    ket_elements = ket.split(" + ")
-    res = defaultdict(float)
-    for ket_element in ket_elements:
-        p, bits = ket_element.split("|")
-        bits = bits.replace("⟩", "")
-        p = abs(complex(p)) ** 2
-        res[bits] = p
-
-    return renormalize_dict(dict(res)) if invalid_sum else dict(res)
-
 
 
 if __name__ == "__main__":
@@ -65,12 +46,12 @@ if __name__ == "__main__":
         with open(file, "rb") as f:
             simulator, meta = pickle.load(f)
 
-        if type(simulator) == MPS_Simulator:
+        if isinstance(simulator, MPS_Simulator):
             result_vec = simulator.get_state_vector()
             if len(result_vec) != 2:
-                result = remove_equal_bits(parse_ket(v2s(result_vec, ignore_small_values=True)))
+                result = remove_equal_bits(v2d(result_vec, ignore_small_values=True))
             else:
-                result = parse_ket(v2s(result_vec, ignore_small_values=False))
+                result = v2d(result_vec, ignore_small_values=False)
 
             best_result = max(result.items(), key=lambda x: x[1])
 
@@ -78,9 +59,10 @@ if __name__ == "__main__":
             print(meta)
             print("{0}: {1}, {2}".format(*best_result,
                                     meta[1] == best_result[0]))
+            print(result)
             print()
 
-        elif type(simulator) == dict:
+        elif isinstance(simulator, dict):
             print(meta)
             print(simulator)
 

@@ -3,6 +3,8 @@ import random
 import numpy as np
 import tensornetwork as tn
 from math import sin, cos, e
+
+from qiskit.circuit import ParameterExpression
 from tqdm import tqdm
 
 from QCPcircuit import QCPcircuit, Gate
@@ -29,6 +31,7 @@ class MPS_Simulator:
     circ_name = None
     measured_gates = None
     unmeasured_gates = None
+    param_angles = None
     shrink_after_measure = True
 
     post_selection = True
@@ -49,6 +52,7 @@ class MPS_Simulator:
         self.show_progress_bar = show_progress_bar
         self.measured_gates = set()
         self.unmeasured_gates = set()
+        self.param_angles = set()
 
 
     def create_MPS(self):
@@ -121,6 +125,10 @@ class MPS_Simulator:
             
             gate = Gate(g.name)
             gate.param = param
+
+            if isinstance(param, ParameterExpression):
+                self.param_angles.add(str(param))
+
             gate.control = self.indices.index(g.control) if g.control is not None else None
             gate.target = self.indices.index(g.target)
 

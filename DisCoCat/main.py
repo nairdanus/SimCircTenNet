@@ -21,7 +21,10 @@ class DisCoCat():
                  n_layers: int, 
                  q_s: int, 
                  q_n: int, 
-                 q_p: int):
+                 q_pp: int,
+                 q_c: int = 1,
+                 q_punc: int = 0,
+                 q_np: int = 1):
         """
 
         :param syntax_model: Choose the syntax model that should be used
@@ -32,13 +35,10 @@ class DisCoCat():
         :param n_layers: Number of layers
         :param q_s: Number of qubits for sentence type
         :param q_n: Number of qubits for noun type
-        :param q_p: Number of qubits for prepositional phrase type
+        :param q_pp: Number of qubits for prepositional phrase type
         """
-        N = AtomicType.NOUN
-        S = AtomicType.SENTENCE
-        P = AtomicType.PREPOSITIONAL_PHRASE
-
         self.data = data_preparation.get_data(dataset_name)
+
         match syntax_model.lower():
             case "pre" | "pregroup" | "bobcat":
                 self.parser = BobcatParser(verbose='text')
@@ -48,16 +48,24 @@ class DisCoCat():
                 self.parser = cups_reader
             case other:
                 raise ValueError(f"{other} is not a valid syntax model! Try pregroup, bow or seq.")
-            
+
+        ob_map = {
+            AtomicType.NOUN: q_n,
+            AtomicType.NOUN_PHRASE: q_np,
+            AtomicType.PREPOSITIONAL_PHRASE: q_pp,
+            AtomicType.CONJUNCTION: q_c,
+            AtomicType.SENTENCE: q_s,
+            AtomicType.PUNCTUATION: q_punc,
+        }
         match ansatz.lower():
             case "iqp":
-                self.ansatz = IQPAnsatz({N: q_n, S: q_s, P: q_p}, n_layers=n_layers)
+                self.ansatz = IQPAnsatz(ob_map, n_layers=n_layers)
             case "sim14":
-                self.ansatz = Sim14Ansatz({N: q_n, S: q_s, P: q_p}, n_layers=n_layers)
+                self.ansatz = Sim14Ansatz(ob_map, n_layers=n_layers)
             case "sim15":
-                self.ansatz = Sim15Ansatz({N: q_n, S: q_s, P: q_p}, n_layers=n_layers)
+                self.ansatz = Sim15Ansatz(ob_map, n_layers=n_layers)
             case "strongent" | "se":
-                self.ansatz = StronglyEntanglingAnsatz({N: q_n, S: q_s}, n_layers=n_layers)
+                self.ansatz = StronglyEntanglingAnsatz(ob_map, n_layers=n_layers)
             case other:
                 raise ValueError(f"{other} is not a valid Ansatz! Try iqp, sim14, sim15 or strongent.")
 
