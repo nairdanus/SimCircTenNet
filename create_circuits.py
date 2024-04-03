@@ -7,6 +7,52 @@ from tqdm import tqdm
 from DisCoCat import DisCoCat
 from helpers.circuit_preparation import qiskitCirc2qcp
 
+
+def create_circuits(dataset,
+                    syntax, 
+                    ansatz,
+                    layers,
+                    q_s,
+                    q_n,
+                    q_pp,
+                    draw=False,
+                    filename=None):
+
+    dataset = dataset.split(".")[0]
+
+    if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
+
+    d = DisCoCat(syntax_model=syntax, 
+                 dataset_name=dataset,
+                 ansatz=ansatz,
+                 n_layers=layers,
+                 q_s=q_s,
+                 q_n=q_n,
+                 q_pp=q_pp)
+
+    if draw is True:
+        d.string_diagrams[0].draw(path="string.png")
+        d.circuits[0][1].draw("mpl", filename="circ.png")
+        d.circuit_diagrams[0].draw(path="circ_dia.png")
+
+    result = []
+    for meta, circ in tqdm(d.circuits,
+                           total=len(d.circuits),
+                           desc="Translating Qiskit to QCP",
+                           ncols=150):
+        result.append((meta, qiskitCirc2qcp(circ), circ))
+
+    if not filename:
+        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_n}.pkl"
+
+    with open(os.path.join("createdCircuits", filename), "wb") as f:
+        print("Saving to", os.path.join("createdCircuits", args.filename))
+        pickle.dump(result, file=f)
+
+    return filename
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creates all circuits of a dataset. Saves a 🥒-file in the format '
                                                  'tuple((sentence, label), QCP-Circuit, qiskit-circuit))')
@@ -30,34 +76,14 @@ if __name__ == "__main__":
                         help='Draws example string diagram and quantum circuit. Saves to string.png and circ.png',
                         default=False)
     args = parser.parse_args()
+    result =  create_circuits(dataset=args.dataset,
+                              syntax=args.syntax,
+                              ansatz=args.ansatz,
+                              layers=args.layers,
+                              q_s=args.q_s,
+                              q_n=args.q_n,
+                              q_pp=args.q_pp,
+                              draw=args.draw,
+                              filename=args.filename)
 
-    args.dataset = args.dataset.split(".")[0]
-
-    if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
-
-    d = DisCoCat(syntax_model=args.syntax, 
-                 dataset_name=args.dataset,
-                 ansatz=args.ansatz,
-                 n_layers=args.layers,
-                 q_s=args.q_s,
-                 q_n=args.q_n,
-                 q_pp=args.q_pp)
-
-    if args.draw is True:
-        d.string_diagrams[0].draw(path="string.png")
-        d.circuits[0][1].draw("mpl", filename="circ.png")
-        d.circuit_diagrams[0].draw(path="circ_dia.png")
-
-    result = []
-    for meta, circ in tqdm(d.circuits,
-                           total=len(d.circuits),
-                           desc="Translating Qiskit to QCP",
-                           ncols=150):
-        result.append((meta, qiskitCirc2qcp(circ), circ))
-
-    if not args.filename:
-        args.filename = f"{args.dataset}-{args.ansatz}-{args.syntax}_{args.layers}_{args.q_s}_{args.q_n}_{args.q_n}.pkl"
-
-    with open(os.path.join("createdCircuits", args.filename), "wb") as f:
-        print("Saving to", os.path.join("createdCircuits", args.filename))
-        pickle.dump(result, file=f)
+    print(f"Created cicuits. Written to:\n{result}")

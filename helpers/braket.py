@@ -61,11 +61,13 @@ def s2d(s:str):
         return {key: value / sum(d.values()) for key, value in d.items()}
 
     invalid_sum = False
+    ket = s
     if s.endswith(' (<INVALID_SUM>)'):
         invalid_sum = True
-        ket = s.replace(' (<INVALID_SUM>)', '')
+        ket = ket.replace(' (<INVALID_SUM>)', '')
+        
 
-    ket_elements = s.split(" + ")
+    ket_elements = ket.split(" + ")
     res = defaultdict(float)
     for ket_element in ket_elements:
         p, bits = ket_element.split("|")
@@ -76,7 +78,7 @@ def s2d(s:str):
     return renormalize_dict(dict(res)) if invalid_sum else dict(res)
 
 def v2d(v, ignore_small_values=False):
-    s2d(v2s(v, ignore_small_values))
+    return s2d(v2s(v, ignore_small_values))
 
 
 
