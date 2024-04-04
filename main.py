@@ -1,13 +1,13 @@
 import argparse
 import os
 
-from train import train
+from ML.train import train
 
-DATASET = "100_animals_plants.csv"
+DATASET = "10_animals_plants.csv"
 SYNTAX = "seq"
 
 ANSATZ = "iqp"
-LAYERS = 10
+LAYERS = 5
 Q_S = 1
 Q_N = 3
 Q_PP = 3

@@ -2,6 +2,8 @@ import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
 import cmath
+import os
+import yaml
 
 from QCPcircuit import QCPcircuit
 from helpers. angle_preparation import get_angles, update_angles
@@ -79,6 +81,8 @@ def train(dataset,
           q_pp,
           𝓧,
           fidelity):
+    with open("angles.yaml", 'w') as yaml_file:
+        yaml.dump(dict(), yaml_file)
     circuits_path = create_circuits(dataset=dataset,
                                     syntax=syntax,
                                     ansatz=ansatz,
@@ -95,3 +99,6 @@ def train(dataset,
                                       fidelity=fidelity)
         print(classificator.meta, classificator.correct)
         classificator.apply_gradient_descent()
+
+    if not os.path.exists("createdparams"): os.mkdir("createdParams")
+    os.rename("angles.yaml", os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml"))
