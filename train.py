@@ -1,12 +1,94 @@
 import argparse
 import os
 from tqdm import tqdm
+from collections import defaultdict
 
 from DisCoCat import DisCoCat
+from QCPcircuit import QCPcircuit
 from MPS import MPS_Simulator
 from helpers import v2d
 from helpers.circuit_preparation import qiskitCirc2qcp
-from ML import Classificator
+from helpers. angle_preparation import get_angles, update_angles
+
+from create_circuits import create_circuits, load_circuits
+from simulate_circuits import simulate_single_circuit
+from postprocess_circuits import postprocess_single_circuit
+
+
+
+
+class Classificator:
+
+    def __init__(self, circ: QCPcircuit, meta: tuple, learning_rate: float, 𝓧=None, fidelity=100):
+        self.learning_rate = learning_rate
+        self.fidelity = fidelity
+        self.𝓧 = 𝓧
+
+        self.circ = circ
+        self.simulator = self.run_simulation()
+        self.angles = get_angles(self.simulator.param_angles)
+        self.perturbed_angles = {n: a for n, a in self.angles.items()}
+
+        self.prob = None
+        self.get_simulation_result()
+
+        self.meta = meta
+        self.gold = meta[1]
+
+
+    def run_simulation(self):
+        return simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
+
+    def get_simulation_result(self):
+        self.prob = postprocess_single_circuit(self.simulator)
+
+    def loss_function(self):
+        # Cross-entropy loss
+        return -np.log(self.prob[self.gold])
+
+    def perturb(self, angle):
+        update_angles({ angle: self.angles[angle] + 0.001 })  # Small perturbation
+
+    def reset(self):
+        update_angles(self.angles)
+
+    def apply_gradient_descent(self):
+        gradients = defaultdict(float)
+        for angle, _ in self.angles:
+            original_loss = self.loss_function()
+            self.perturb(angle)
+
+            # Calculate the gradient using finite differences
+            self.run_simulation()
+            self.get_simulation_result()
+            perturbed_loss = self.loss_function()
+            
+            gradients[angle] = (perturbed_loss - original_loss) / 0.001
+            self.reset()
+
+        # Update rotation angles using gradients and learning rate
+        update_angles({
+            angle: self.angles[angle] - self.learning_rate * gradients[angle] for angle in gradients
+        })
+
+
+def train(*args, **kwargs):
+    circuits_path = create_circuits(dataset=kwargs["dataset"],
+                                    syntax=kwargs["syntax"],
+                                    ansatz=kwargs["ansatz"],
+                                    layers=kwargs["layers"],
+                                    q_s=kwargs["q_s"],
+                                    q_n=kwargs["q_n"],
+                                    q_pp=kwargs["q_pp"])
+    
+    for (meta, circ, _) in load_circuits(circuits_path):
+        classificator = Classificator(circ=circ,
+                                      meta=meta,
+                                      learning_rate=0.01,
+                                      𝓧=kwargs["𝓧"],
+                                      fidelity=kwargs["fidelity"])
+        classificator.apply_gradient_descent()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='The complete training pipeline.')

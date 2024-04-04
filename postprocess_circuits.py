@@ -25,6 +25,21 @@ def remove_equal_bits(d):
     return dict(res)
 
 
+def postprocess_single_circuit(simulator):
+    
+    result_vec = simulator.get_state_vector()
+
+    if len(result_vec) != 2:
+        result = remove_equal_bits(v2d(result_vec, ignore_small_values=True))
+    else:
+        result = v2d(result_vec, ignore_small_values=False)
+
+    assert len(result) == 2, "Postprocess has three labels!!!"
+
+    return result
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dir', type=str,

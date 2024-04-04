@@ -20,6 +20,15 @@ def write_meta(input: str):
         f.write(input)
 
 
+
+def simulate_single_circuit(QCP_circ, fidelity, 𝓧, show_progress_bar=False):
+
+    simulator = MPS_Simulator(circ=QCP_circ, fidelity=fidelity, 𝓧=𝓧, show_progress_bar=show_progress_bar)
+    simulator.iterate_circ()
+    
+    return simulator
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--simulator', default="Personal_MPS",

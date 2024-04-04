@@ -52,6 +52,19 @@ def create_circuits(dataset,
     return filename
 
 
+def load_circuits(file):
+    if os.path.exists(complete_path := os.path.join("createdCircuits", os.path.basename(file))):
+        path = complete_path
+        file_name = os.path.basename(path).split(".")[0]
+    else:
+        raise FileNotFoundError(f"There is no file called {complete_path}")
+
+    with open(path, "rb") as f:
+        circuits = pickle.load(f)
+    
+    return circuits
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creates all circuits of a dataset. Saves a 🥒-file in the format '
@@ -76,14 +89,12 @@ if __name__ == "__main__":
                         help='Draws example string diagram and quantum circuit. Saves to string.png and circ.png',
                         default=False)
     args = parser.parse_args()
-    result =  create_circuits(dataset=args.dataset,
-                              syntax=args.syntax,
-                              ansatz=args.ansatz,
-                              layers=args.layers,
-                              q_s=args.q_s,
-                              q_n=args.q_n,
-                              q_pp=args.q_pp,
-                              draw=args.draw,
-                              filename=args.filename)
-
-    print(f"Created cicuits. Written to:\n{result}")
+    create_circuits(dataset=args.dataset,
+                    syntax=args.syntax,
+                    ansatz=args.ansatz,
+                    layers=args.layers,
+                    q_s=args.q_s,
+                    q_n=args.q_n,
+                    q_pp=args.q_pp,
+                    draw=args.draw,
+                    filename=args.filename)
