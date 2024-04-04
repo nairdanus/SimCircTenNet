@@ -1,13 +1,31 @@
-from . train import train
+import argparse
+import os
+
+from train import train
+
+DATASET = "100_animals_plants.csv"
+SYNTAX = "seq"
+
+ANSATZ = "iqp"
+LAYERS = 10
+Q_S = 1
+Q_N = 3
+Q_PP = 3
+
+𝓧 = None
+FIDELITY = 100
 
 
-train(dataset="10_animals_plants",
-      syntax="bow",
-      ansatz="iqp",
-      layers=2,
-      q_s=1,
-      q_n=1,
-      q_pp=1,
-      𝓧=None,
-      fidelity=100,
-      )
+
+if __name__=="__main__":
+
+      train(dataset=DATASET,
+            syntax=SYNTAX,
+            ansatz=ANSATZ,
+            layers=LAYERS,
+            q_s=Q_S,
+            q_n=Q_N,
+            q_pp=Q_PP,
+            𝓧=𝓧,
+            fidelity=FIDELITY
+            )

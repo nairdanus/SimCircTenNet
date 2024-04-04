@@ -17,10 +17,15 @@ def create_circuits(dataset,
                     q_pp,
                     draw=False,
                     filename=None):
-
+    
     dataset = dataset.split(".")[0]
 
     if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
+
+    if not filename:
+        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_n}.pkl"
+        if os.path.exists(os.path.join("createdCircuits", filename)):
+            return filename
 
     d = DisCoCat(syntax_model=syntax, 
                  dataset_name=dataset,
@@ -42,11 +47,9 @@ def create_circuits(dataset,
                            ncols=150):
         result.append((meta, qiskitCirc2qcp(circ), circ))
 
-    if not filename:
-        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_n}.pkl"
 
     with open(os.path.join("createdCircuits", filename), "wb") as f:
-        print("Saving to", os.path.join("createdCircuits", args.filename))
+        print("Saving to", os.path.join("createdCircuits", filename))
         pickle.dump(result, file=f)
 
     return filename

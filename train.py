@@ -1,13 +1,9 @@
-import argparse
-import os
-from tqdm import tqdm
+import numpy as np
 from collections import defaultdict
+from tqdm import tqdm
+import cmath
 
-from DisCoCat import DisCoCat
 from QCPcircuit import QCPcircuit
-from MPS import MPS_Simulator
-from helpers import v2d
-from helpers.circuit_preparation import qiskitCirc2qcp
 from helpers. angle_preparation import get_angles, update_angles
 
 from create_circuits import create_circuits, load_circuits
@@ -35,6 +31,8 @@ class Classificator:
         self.meta = meta
         self.gold = meta[1]
 
+        self.correct = self.prob[self.gold] > 0.5
+
 
     def run_simulation(self):
         return simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
@@ -47,14 +45,14 @@ class Classificator:
         return -np.log(self.prob[self.gold])
 
     def perturb(self, angle):
-        update_angles({ angle: self.angles[angle] + 0.001 })  # Small perturbation
+        update_angles({ angle: (self.angles[angle] + 0.001) % (2*cmath.pi) })  # Small perturbation
 
     def reset(self):
         update_angles(self.angles)
 
     def apply_gradient_descent(self):
         gradients = defaultdict(float)
-        for angle, _ in self.angles:
+        for angle in tqdm(self.angles, total=len(self.angles), desc="Angles: "):
             original_loss = self.loss_function()
             self.perturb(angle)
 
@@ -68,89 +66,32 @@ class Classificator:
 
         # Update rotation angles using gradients and learning rate
         update_angles({
-            angle: self.angles[angle] - self.learning_rate * gradients[angle] for angle in gradients
+            angle: (self.angles[angle] - self.learning_rate * gradients[angle]) % (2*cmath.pi) for angle in gradients
         })
 
 
-def train(*args, **kwargs):
-    circuits_path = create_circuits(dataset=kwargs["dataset"],
-                                    syntax=kwargs["syntax"],
-                                    ansatz=kwargs["ansatz"],
-                                    layers=kwargs["layers"],
-                                    q_s=kwargs["q_s"],
-                                    q_n=kwargs["q_n"],
-                                    q_pp=kwargs["q_pp"])
+def train(dataset,
+          syntax,
+          ansatz,
+          layers,
+          q_s,
+          q_n,
+          q_pp,
+          𝓧,
+          fidelity):
+    circuits_path = create_circuits(dataset=dataset,
+                                    syntax=syntax,
+                                    ansatz=ansatz,
+                                    layers=layers,
+                                    q_s=q_s,
+                                    q_n=q_n,
+                                    q_pp=q_pp)
     
     for (meta, circ, _) in load_circuits(circuits_path):
         classificator = Classificator(circ=circ,
                                       meta=meta,
                                       learning_rate=0.01,
-                                      𝓧=kwargs["𝓧"],
-                                      fidelity=kwargs["fidelity"])
+                                      𝓧=𝓧,
+                                      fidelity=fidelity)
+        print(classificator.meta, classificator.correct)
         classificator.apply_gradient_descent()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='The complete training pipeline.')
-    parser.add_argument('--syntax', type=str, help="What syntax model should be used. Pregroup, bag-of-words or sequential.", default="pregroup",
-                        choices=["pregroup", "pre", "bobcat",
-                                 "bow", "bagofwords", "bag-of-words",
-                                 "seq", "sequential"])
-    parser.add_argument('--dataset', type=str, help='Wich dataset to use for creating the circuits.',
-                        default="10_animals_plants",
-                        choices=[f.split(".")[0] for f in os.listdir("Data")] + os.listdir("Data"),
-                        required=False)
-    parser.add_argument('--ansatz', type=str, help='What Ansatz to use for the ciruits.',
-                        default="iqp", choices=["iqp", "sim14", "sim15", "StrongEnt", "se"], required=False)
-    parser.add_argument('--layers', type=int, help='How many layers to use for the Ansatz.',
-                        default=1, required=False)
-    parser.add_argument('--q_s', type=int, help='How many Qubits for sentences.', default=1, required=False)
-    parser.add_argument('--q_n', type=int, help='How many Qubits for nouns.', default=1, required=False)
-    parser.add_argument('--q_pp', type=int, help='How many Qubits for prepositional phrases.', default=1, required=False)
-    parser.add_argument('--fidelity', type=float, default=None,
-                        help='The maximal truncation error for the simulation. (Type 0 to deactivate)')
-    parser.add_argument('--chi', type=int, default=None,
-                        help='The 𝓧 value of the Simulation. Number of singular values to keep. (Type 0 to deactivate)')
-    parser.add_argument('--learn_rate', type=float, default=0.01,
-                        help='The learning rate.')
-
-    args = parser.parse_args()
-
-    args.dataset = args.dataset.split(".")[0]
-
-    if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
-
-    d = DisCoCat(syntax_model=args.syntax,
-                 dataset_name=args.dataset,
-                 ansatz=args.ansatz,
-                 n_layers=args.layers,
-                 q_s=args.q_s,
-                 q_n=args.q_n,
-                 q_pp=args.q_pp)
-
-    circs = []
-    for meta, circ in tqdm(d.circuits,
-                           total=len(d.circuits),
-                           desc="Translating Qiskit to QCP",
-                           ncols=150):
-        circs.append((meta, qiskitCirc2qcp(circ), circ))
-
-    for meta, QCP_circ, qiskit_circ in tqdm(circs,
-                                            total=len(circs),
-                                            desc="Simulating circuits",
-                                            ncols=150):
-        simulator = MPS_Simulator(circ=QCP_circ, fidelity=args.fidelity, 𝓧=args.chi, show_progress_bar=False,
-                        circ_name="./trash")
-        simulator.iterate_circ()
-        result_vec = simulator.get_state_vector()
-        result = v2d(result_vec, ignore_small_values=False)
-
-        Classificator(prob=result,
-                      meta=meta,
-                      angle_names=simulator.param_angles,
-                      learning_rate=args.learn_rate)
-
-        # TODO
-
-
-

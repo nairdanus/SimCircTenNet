@@ -1,9 +1,14 @@
 import random
+import os
 
 from qiskit.circuit import ParameterExpression
 import cmath
 
 import yaml
+
+if not os.path.exists('angles.yaml'):
+    with open('angles.yaml', 'w') as yaml_file:
+        yaml.dump(dict(), yaml_file)
 
 def evaluate_angle(θ):
     """
@@ -19,7 +24,7 @@ def evaluate_angle(θ):
         with open('angles.yaml', 'r') as yaml_file:
             angles = yaml.safe_load(yaml_file)
         if not str(θ) in angles.keys():
-            angles[str(θ)] = float(cmath.pi*random.random())
+            angles[str(θ)] = float(2*cmath.pi*random.random())
 
         with open('angles.yaml', 'w') as yaml_file:
             yaml.dump(angles, yaml_file)
@@ -40,7 +45,7 @@ def update_angles(updated_angles: dict[str, float]):
         angles = yaml.safe_load(yaml_file)
 
     for k, v in updated_angles.items():
-        angles[k] = v
+        angles[k] = float(v)
 
     with open('angles.yaml', 'w') as yaml_file:
         yaml.dump(angles, yaml_file)
