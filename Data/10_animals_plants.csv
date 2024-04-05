@@ -1,12 +1,12 @@
-# Description: Simple sentences from domain animals (0) or plants (1).
-# The 10 first entries from 100_animals_plants.csv
-Birds that sing greet mornings.,0
-The fish who swims explores the ocean.,0
-Owls that hunt are nocturnal.,0
-The rabbit that hops enjoys carrots.,0
-Monkeys that climb entertain us.,0
-The flower that blossoms smells sweet.,1
-Vines that climb cover walls.,1
-The grass that grows needs sunlight.,1
-Tulips that bloom add color to gardens.,1
-The fern that unfurls loves damp soil.,1
+# Description: Simple sentences from domain animals (0) or plants (1). Possible test set.
+# Source: ChatGPT3.5; Prompt: (100_animals_plants) Write 10 sentences that don't appear here. Sentences that have to do with plants have label 1 and sentences that have to do with animals have label 0. The sentences must be new and must not occur in the sentences provided.
+Bears that hibernate conserve energy during winter months,0
+The maple tree that sheds leaves provides vibrant autumn colors,1
+Penguins that gather in colonies huddle together for warmth,0
+The ivy that climbs adds a touch of greenery to buildings,1
+Wolves that howl communicate with their pack members over long distances,0
+The daisy that blooms attracts butterflies with its nectar,1
+Dolphins that leap out of the water display playful behavior,0
+The oak tree that towers provides a habitat for various forest creatures,1
+Antelopes that migrate follow seasonal patterns for grazing,0
+The Venus flytrap that traps insects is a carnivorous plant,1

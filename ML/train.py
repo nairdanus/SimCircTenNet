@@ -23,7 +23,8 @@ class Classificator:
         self.𝓧 = 𝓧
 
         self.circ = circ
-        self.simulator = self.run_simulation()
+        self.simulator = None
+        self.run_simulation()
         self.angles = get_angles(self.simulator.param_angles)
         self.perturbed_angles = {n: a for n, a in self.angles.items()}
 
@@ -37,7 +38,7 @@ class Classificator:
 
 
     def run_simulation(self):
-        return simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
+        self.simulator = simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
 
     def get_simulation_result(self):
         self.prob = postprocess_single_circuit(self.simulator)
@@ -81,6 +82,7 @@ def train(dataset,
           q_pp,
           𝓧,
           fidelity):
+          
     with open("angles.yaml", 'w') as yaml_file:
         yaml.dump(dict(), yaml_file)
     circuits_path = create_circuits(dataset=dataset,
@@ -101,4 +103,7 @@ def train(dataset,
         classificator.apply_gradient_descent()
 
     if not os.path.exists("createdparams"): os.mkdir("createdParams")
-    os.rename("angles.yaml", os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml"))
+    param_path = os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml")
+    os.rename("angles.yaml", param_path)
+
+    return param_path

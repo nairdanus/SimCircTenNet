@@ -1,3 +1,4 @@
-__all__ = ["classificator"]
+__all__ = ["train", "eval"]
 
-from .classificator import Classificator
+from .train import train
+from .eval import evaluate
