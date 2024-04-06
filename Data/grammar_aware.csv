@@ -1,0 +1,56 @@
+# From Grammar-aware sentence classification, Meichanetzidis, Coecke et al, http://arxiv.org/abs/2012.03756
+# Lebowski:
+"Dude who loves Walter bowls",1
+"Dude bowls",1
+"Dude annoys Walter",0
+"Walter who abides bowls",0
+"Walter loves Walter",1
+"Walter annoys Dude",1
+"Walter bowls",1
+"Walter abides",0
+"Dude loves Walter",1
+"Dude who bowls abides",1
+"Walter who bowls annoys Dude",1
+"Dude who bowls bowls",1
+"Dude who abides abides",1
+"Dude annoys Dude who bowls",0
+"Walter annoys Walter",0
+"Dude who abides bowls",1
+"Walter who abides loves Walter",0
+"Walter who bowls bowls",1
+"Walter loves Walter who abides",0
+"Walter annoys Walter who bowls",0
+"Dude abides",1
+"Dude loves Walter who bowls",1
+"Walter who loves Dude bowls",1
+"Dude loves Dude who abides",1
+"Walter who abides loves Dude",0
+"Dude annoys Dude",0
+"Walter who annoys Dude bowls",1
+"Walter who annoys Dude abides",0
+"Walter loves Dude",1
+"Dude who bowls loves Walter",1
+# Romeo 1:
+"Romeo dies",1
+"Romeo loves Juliet",0
+"Juliet who dies dies",1
+"Romeo loves Romeo",0
+"Juliet loves Romeo",0
+"Juliet dies",1
+# Romeo 2:
+"Juliet kills Romeo who dies",0
+"Juliet dies",1
+"Romeo who loves Juliet dies",1
+"Romeo dies",1
+"Juliet who dies dies",1
+"Romeo loves Juliet",1
+"Juliet who dies loves Juliet",0
+"Romeo kills Juliet who dies",0
+"Romeo who kills Romeo dies",1
+"Romeo who dies dies",1
+"Romeo who loves Romeo dies",0
+"Romeo kills Juliet",0
+"Romeo who dies kills Romeo",1
+"Juliet who dies kills Romeo",0
+"Romeo loves Romeo",0
+"Romeo who dies kills Juliet",0

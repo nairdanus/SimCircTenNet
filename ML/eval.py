@@ -1,4 +1,6 @@
 import os
+import shutil
+import yaml
 
 from create_circuits import create_circuits, load_circuits
 from simulate_circuits import simulate_single_circuit
@@ -13,9 +15,10 @@ class Evaluator:
         self.n_circs = 0
 
         for (meta, circ, _) in load_circuits(circuits_path):
-            simulator = simulate_single_circuit(circ, self.fidelity, self.𝓧)
-            result = max(postprocess_single_circuit(simulator).items(), lambda x: x[1])[0]
-            self.correct += int(result == meta[1])
+            simulator = simulate_single_circuit(circ, fidelity, 𝓧)
+            result = postprocess_single_circuit(simulator)
+            gold_label = meta[1]
+            self.correct += result[gold_label]
             self.n_circs += 1
 
 
@@ -42,8 +45,8 @@ def evaluate(param_path,
                                     q_s=q_s,
                                     q_n=q_n,
                                     q_pp=q_pp)
-    os.remove("angles.yaml")
-    os.rename(param_path, "angles.yaml")
+    if os.path.exists("angles.yaml"): os.remove("angles.yaml")
+    shutil.copyfile(param_path, "angles.yaml")
     
     evaluator = Evaluator(circuits_path=circuits_path, 
                           𝓧=𝓧, 
@@ -51,9 +54,7 @@ def evaluate(param_path,
 
     acc = evaluator.accuracy()
 
-    os.rename("angles.yaml", param_path)
     with open("angles.yaml", 'w') as yaml_file:
         yaml.dump(dict(), yaml_file)
 
     return acc
-    

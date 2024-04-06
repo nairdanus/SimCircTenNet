@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 from ML import train, evaluate
 
@@ -30,15 +31,40 @@ kwargs = {
       "fidelity": FIDELITY,
 }
 
-out_file = f"{DATASET}_{SYNTAX}.txt"
+out_file = f"TRAIN_{time.time()}.txt"
 
 if __name__=="__main__":
-      with open(out_file, 'wa') as f:
-            f.write(f"Starting training:\n")
+      with open(out_file, 'w') as f:
+            f.write(time.strftime(
+        f"""
+%m.%d.-%H:%M - Starting training:
+      DATASET = {DATASET}
+      TESTSET = {TESTSET}
+      SYNTAX = {SYNTAX}
+
+      ANSATZ = {ANSATZ}
+      LAYERS = {LAYERS}
+      Q_S = {Q_S}
+      Q_N = {Q_N}
+      Q_PP = {Q_PP}
+
+      𝓧 = {𝓧}
+      FIDELITY = {FIDELITY}
+
+      EPOCHS = {EPOCHS}
+
+______________________________________________________________
+
+"""
+    ))
 
       for e in range(EPOCHS):
-            param_path = train(dataset=DATASET,**kwargs)
-            acc = evaluate(dataset=TESTSET, param_path=param_path, **kwargs)
-            
+            param_path = train(dataset=DATASET, **kwargs)
+            print("Evaluating...")
+            acc = evaluate(dataset=TESTSET, param_path="createdParams/BACKUP copy.yaml", **kwargs)
+            print(f"Accuracy: {acc}")
             with open(out_file, 'a') as f:
                   f.write(f"Accuracy at epoch {e}: {acc}\n")
+
+with open(out_file, 'a') as f:
+      f.write(time.strftime(f"\n FINISHED at %m.%d.-%H:%M"))
