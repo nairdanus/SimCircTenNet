@@ -1,0 +1,31 @@
+
+04.08.-14:41 - Starting training:
+      DATASET = grammar_aware.csv
+      TESTSET = test_grammar_aware.csv
+      SYNTAX = pregroup
+
+      ANSATZ = iqp
+      LAYERS = 1
+      Q_S = 1
+      Q_N = 2
+      Q_PP = 2
+
+      𝓧 = None
+      FIDELITY = 100
+
+      EPOCHS = 10
+
+______________________________________________________________
+
+Accuracy at epoch 0: 0.449
+Accuracy at epoch 1: 0.478
+Accuracy at epoch 2: 0.502
+Accuracy at epoch 3: 0.522
+Accuracy at epoch 4: 0.54
+Accuracy at epoch 5: 0.555
+Accuracy at epoch 6: 0.568
+Accuracy at epoch 7: 0.579
+Accuracy at epoch 8: 0.59
+Accuracy at epoch 9: 0.6
+
+ FINISHED at 04.08.-14:49

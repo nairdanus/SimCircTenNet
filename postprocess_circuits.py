@@ -74,6 +74,7 @@ if __name__ == "__main__":
             print(meta)
             print("{0}: {1}, {2}".format(*best_result,
                                     meta[1] == best_result[0]))
+            print("X: ", simulator.real_𝓧s)
             print(result)
             print()
 

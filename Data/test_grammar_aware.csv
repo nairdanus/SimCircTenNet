@@ -1,0 +1,10 @@
+# Test set for grammar_aware.csv
+# Lebowski:
+"Dude who loves Walter bowls",1
+"Dude annoys Walter",0
+# Romeo 1:
+"Romeo dies",1
+"Romeo loves Juliet",0
+# Romeo 2:
+"Juliet kills Romeo who dies",0
+"Juliet dies",1

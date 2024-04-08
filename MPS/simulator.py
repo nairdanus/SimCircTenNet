@@ -33,6 +33,7 @@ class MPS_Simulator:
     unmeasured_gates = None
     param_angles = None
     shrink_after_measure = True
+    real_𝓧s = None 
 
     post_selection = True
 
@@ -53,6 +54,7 @@ class MPS_Simulator:
         self.measured_gates = set()
         self.unmeasured_gates = set()
         self.param_angles = set()
+        self.real_𝓧s = []
 
 
     def create_MPS(self):
@@ -433,6 +435,8 @@ class MPS_Simulator:
         else:
             l = [dangling[0], non_dangling[0]]
             r = [dangling[1], non_dangling[1]]
+
+        self.real_𝓧s.append(max(new_node.tensor.shape))
 
         try:
             u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,

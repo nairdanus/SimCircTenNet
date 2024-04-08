@@ -1,0 +1,31 @@
+
+04.08.-14:56 - Starting training:
+      DATASET = 100_animals_plants.csv
+      TESTSET = 10_animals_plants.csv
+      SYNTAX = seq
+
+      ANSATZ = iqp
+      LAYERS = 1
+      Q_S = 1
+      Q_N = 2
+      Q_PP = 2
+
+      𝓧 = None
+      FIDELITY = 100
+
+      EPOCHS = 10
+
+______________________________________________________________
+
+Accuracy at epoch 0: 0.484
+Accuracy at epoch 1: 0.563
+Accuracy at epoch 2: 0.614
+Accuracy at epoch 3: 0.489
+Accuracy at epoch 4: 0.542
+Accuracy at epoch 5: 0.567
+Accuracy at epoch 6: 0.487
+Accuracy at epoch 7: 0.624
+Accuracy at epoch 8: 0.486
+Accuracy at epoch 9: 0.386
+
+ FINISHED at 04.08.-16:26
