@@ -24,7 +24,8 @@ class DisCoCat():
                  q_pp: int,
                  q_c: int = 1,
                  q_punc: int = 0,
-                 q_np: int = 1):
+                 q_np: int = 1,
+                 disable_tqdm = False):
         """
 
         :param syntax_model: Choose the syntax model that should be used
@@ -38,6 +39,8 @@ class DisCoCat():
         :param q_pp: Number of qubits for prepositional phrase type
         """
         self.data = data_preparation.get_data(dataset_name)
+
+        self.disable_tqdm = disable_tqdm
 
         match syntax_model.lower():
             case "pre" | "pregroup" | "bobcat":
@@ -74,7 +77,8 @@ class DisCoCat():
         self.qiskit_circuits = [tk_to_qiskit(circ.to_tk()) for circ in tqdm(self.circuit_diagrams,
                                                                             total=len(self.circuit_diagrams),
                                                                             desc="Translating diagrams to Qiskit",
-                                                                            ncols=150)]
+                                                                            ncols=150,
+                                                                            disable=self.disable_tqdm)]
 
         self.circuits = list(zip(self.data, self.qiskit_circuits))
 
@@ -82,7 +86,8 @@ class DisCoCat():
         data_iter = tqdm(self.data,
                          total=len(self.data),
                          desc="Parsing sentences",
-                         ncols=150)
+                         ncols=150,
+                         disable=self.disable_tqdm)
         if all(isinstance(s, str) for s in self.data):
             return [self.parser.sentence2diagram(sent) for sent in data_iter]
         if all(isinstance(s, tuple) and len(s) == 2 for s in self.data):
@@ -94,7 +99,8 @@ class DisCoCat():
         return [self.ansatz(sent) for sent in tqdm(self.string_diagrams,
                                                    total=len(self.string_diagrams),
                                                    desc="Generating circuits",
-                                                   ncols=150)]
+                                                   ncols=150,
+                                                   disable=self.disable_tqdm)]
 
 
 

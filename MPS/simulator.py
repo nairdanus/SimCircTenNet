@@ -22,19 +22,8 @@ class MPS_Simulator:
     :param show_progress_bar: boolean to enable or disable progress bar
     :param circ_name: name of the output
     """
-    network = None
-    circ = None
-    threshold = None
-    𝓧 = None
-    indices = None
-    show_progress_bar = None
-    circ_name = None
-    measured_gates = None
-    unmeasured_gates = None
-    param_angles = None
-    shrink_after_measure = True
-    real_𝓧s = None 
 
+    shrink_after_measure = True
     post_selection = True
 
     def __init__(self, 
@@ -42,7 +31,8 @@ class MPS_Simulator:
                  fidelity: Optional[float] = None,
                  𝓧: Optional[int] = None,
                  show_progress_bar: Optional[bool] = False,
-                 circ_name: Optional[Text] = "./trash"):
+                 circ_name: Optional[Text] = "./trash",
+                 post_selection: Optional[bool] = None):
         self.𝓧 = 𝓧
         self.threshold = None if not fidelity or fidelity == 100 else 100 - fidelity
         self.circ = circ
@@ -55,6 +45,7 @@ class MPS_Simulator:
         self.unmeasured_gates = set()
         self.param_angles = set()
         self.real_𝓧s = []
+        if post_selection: self.post_selection = post_selection
 
 
     def create_MPS(self):
@@ -103,8 +94,6 @@ class MPS_Simulator:
                 else:
                     continue
 
-
-
             """ Optimisation: if angles add to 0, skip them """
             if skip > 0:
                 skip -= 1
@@ -139,19 +128,23 @@ class MPS_Simulator:
             getattr(self, gate.name)(gate)
 
 
+
+
+    """
+    ----------      RESULTS     -----------
+    """
+
     def get_state_vector(self):
+        if self.post_selection:
+            return self.get_state_vector_post_selection()
+        else:
+            return self.get_state_vector_normal()
+
+    def get_state_vector_normal(self):
         """
         Runs contract_mps and returns the state vector of the MPS.
         The order is corrected according to self.indices.
         """
-        if self.post_selection:
-            node = self.contract_mps_postselection()
-            if len(node.edges) != 1:
-                raise NotImplementedError(
-                    f"Number of edges is {len(node.edges)}. Only binary classification possible at the moment."
-                )
-            return node.tensor
-
         node = self.contract_mps()
         vec = np.reshape(node.tensor, newshape=(2**self.circ.numQubits))
         vec2 = np.copy(vec)
@@ -167,6 +160,17 @@ class MPS_Simulator:
             vec2[i] = vec[ii]
 
         return vec2
+
+    def get_state_vector_post_selection(self):
+        """
+        Runs contract_mps_postselection and returns the tensor (should be scalar for binary classification).
+        """
+        node = self.contract_mps_postselection()
+        if len(node.edges) != 1:
+            raise NotImplementedError(
+                f"Number of edges is {len(node.edges)}. Only binary classification possible at the moment."
+            )
+        return node.tensor
 
     def contract_mps(self) -> tn.Node:
         """
@@ -217,6 +221,39 @@ class MPS_Simulator:
         result = tn.contractors.auto(mps+zero_nodes, ignore_edge_order=True)
         return result
 
+
+    def measure_states(self, states: list[str]) -> dict[str, float]:
+        """
+        Measure the probability of a given state.
+        :param states: The states of the qubits. e.g. ["0001", "0010", "0011", "0100"]
+        :return: A dictionary containing the probability of each state in the given states.
+                e.g. {"0001": 0.1, "0010":0.2, ...}
+        """
+        output = dict()
+        for state_string in states:
+            state = list([int(i) for i in state_string])
+            state = list(reversed(state))
+            state = [state[self.indices.index(i)] for i, _ in enumerate(state)]
+
+            mps = list(tn.copy(self.network)[0].values())
+            vectorNodes = []
+            for id, node in enumerate(mps):
+                vector = [1,0] if state[id] == 0 else [0,1]
+                vectorNode = tn.Node(np.array(vector, dtype=complex))
+
+                vectorNode.edges[0] ^ node.get_all_dangling()[0]
+                vectorNodes.append(vectorNode)
+
+            result = tn.contractors.auto(mps+vectorNodes, ignore_edge_order=True)
+            output[state_string] = abs(result.tensor.item())**2
+        return output
+
+
+
+    
+    """
+    ----------      GATES     -----------
+    """
     def apply_gate(self, gate, target):
         gate_edge = gate[1]
         node = self.network[target]
@@ -451,31 +488,6 @@ class MPS_Simulator:
         self.network[ctl] = u
         self.network[tgt] = vh
 
-    def measure_states(self, states: list[str]) -> dict[str, float]:
-        """
-        Measure the probability of a given state.
-        :param states: The states of the qubits. e.g. ["0001", "0010", "0011", "0100"]
-        :return: A dictionary containing the probability of each state in the given states.
-                e.g. {"0001": 0.1, "0010":0.2, ...}
-        """
-        output = dict()
-        for state_string in states:
-            state = list([int(i) for i in state_string])
-            state = list(reversed(state))
-            state = [state[self.indices.index(i)] for i, _ in enumerate(state)]
-
-            mps = list(tn.copy(self.network)[0].values())
-            vectorNodes = []
-            for id, node in enumerate(mps):
-                vector = [1,0] if state[id] == 0 else [0,1]
-                vectorNode = tn.Node(np.array(vector, dtype=complex))
-
-                vectorNode.edges[0] ^ node.get_all_dangling()[0]
-                vectorNodes.append(vectorNode)
-
-            result = tn.contractors.auto(mps+vectorNodes, ignore_edge_order=True)
-            output[state_string] = abs(result.tensor.item())**2
-        return output
 
     def measure(self, gate):
         """
