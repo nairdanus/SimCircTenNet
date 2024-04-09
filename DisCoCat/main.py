@@ -25,6 +25,7 @@ class DisCoCat():
                  q_c: int = 1,
                  q_punc: int = 0,
                  q_np: int = 1,
+                 n_single_q: int = 3,
                  disable_tqdm = False):
         """
 
@@ -62,13 +63,13 @@ class DisCoCat():
         }
         match ansatz.lower():
             case "iqp":
-                self.ansatz = IQPAnsatz(ob_map, n_layers=n_layers)
+                self.ansatz = IQPAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
             case "sim14":
-                self.ansatz = Sim14Ansatz(ob_map, n_layers=n_layers)
+                self.ansatz = Sim14Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
             case "sim15":
-                self.ansatz = Sim15Ansatz(ob_map, n_layers=n_layers)
+                self.ansatz = Sim15Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
             case "strongent" | "se":
-                self.ansatz = StronglyEntanglingAnsatz(ob_map, n_layers=n_layers)
+                self.ansatz = StronglyEntanglingAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
             case other:
                 raise ValueError(f"{other} is not a valid Ansatz! Try iqp, sim14, sim15 or strongent.")
 

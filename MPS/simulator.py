@@ -473,12 +473,12 @@ class MPS_Simulator:
             l = [dangling[0], non_dangling[0]]
             r = [dangling[1], non_dangling[1]]
 
-        self.real_𝓧s.append(max(new_node.tensor.shape))
-
         try:
-            u, vh, _ = tn.split_node(new_node, left_edges=l, right_edges=r,
-                                     max_truncation_err=self.threshold,
-                                     max_singular_values=self.𝓧)
+            u, vh, trun_vals = tn.split_node(new_node, left_edges=l, right_edges=r,
+                                             max_truncation_err=self.threshold,
+                                             max_singular_values=self.𝓧)
+                                             
+            self.real_𝓧s.append(max(u.tensor.shape)+len(trun_vals))
 
         except np.linalg.LinAlgError as LinAlgError:
             print("Following tensor did not converge:")
