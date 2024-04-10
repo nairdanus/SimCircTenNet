@@ -30,10 +30,11 @@ def test_post_selection(sentence: str):
                     disable_tqdm=True,
                     q_s=1, 
                     q_n=random.randint(1, 7), 
+                    q_np=random.randint(1, 7),
                     q_pp=random.randint(1, 7), 
                     q_c=random.randint(1, 7),
                     q_punc=random.randint(1, 7),
-                    q_np=random.randint(1, 7))
+                    )
         circ = qiskitCirc2qcp(d.circuits[0][1])
 
         simulators = [

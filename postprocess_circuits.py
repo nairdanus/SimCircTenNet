@@ -72,11 +72,10 @@ if __name__ == "__main__":
 
             print()
             print(meta)
-            print("{0}: {1}, {2}".format(*best_result,
-                                    meta[1] == best_result[0]))
-            print("X max: ", max(simulator.real_𝓧s))
-            print("X avg: ", sum(simulator.real_𝓧s)/len(simulator.real_𝓧s))
             print(result)
+            print("𝓧 max: ", max(simulator.real_𝓧s))
+            print("𝓧 avg: ", sum(simulator.real_𝓧s)/len(simulator.real_𝓧s))
+            print("Amount of Params: ", len(simulator.param_angles))
             print()
 
         elif isinstance(simulator, dict):

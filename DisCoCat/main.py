@@ -21,10 +21,10 @@ class DisCoCat():
                  n_layers: int, 
                  q_s: int, 
                  q_n: int, 
+                 q_np: int,
                  q_pp: int,
-                 q_c: int = 1,
-                 q_punc: int = 0,
-                 q_np: int = 1,
+                 q_c: int,
+                 q_punc: int,
                  n_single_q: int = 3,
                  disable_tqdm = False):
         """
@@ -54,22 +54,22 @@ class DisCoCat():
                 raise ValueError(f"{other} is not a valid syntax model! Try pregroup, bow or seq.")
 
         ob_map = {
+            AtomicType.SENTENCE: q_s,
             AtomicType.NOUN: q_n,
             AtomicType.NOUN_PHRASE: q_np,
             AtomicType.PREPOSITIONAL_PHRASE: q_pp,
             AtomicType.CONJUNCTION: q_c,
-            AtomicType.SENTENCE: q_s,
             AtomicType.PUNCTUATION: q_punc,
         }
         match ansatz.lower():
             case "iqp":
-                self.ansatz = IQPAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
+                self.ansatz = IQPAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=n_single_q)
             case "sim14":
-                self.ansatz = Sim14Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
+                self.ansatz = Sim14Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=n_single_q)
             case "sim15":
-                self.ansatz = Sim15Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
+                self.ansatz = Sim15Ansatz(ob_map, n_layers=n_layers, n_single_qubit_params=n_single_q)
             case "strongent" | "se":
-                self.ansatz = StronglyEntanglingAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=3)
+                self.ansatz = StronglyEntanglingAnsatz(ob_map, n_layers=n_layers, n_single_qubit_params=n_single_q)
             case other:
                 raise ValueError(f"{other} is not a valid Ansatz! Try iqp, sim14, sim15 or strongent.")
 

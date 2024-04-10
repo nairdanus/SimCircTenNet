@@ -95,13 +95,9 @@ done
 
 read -p "How many layers? " chosen_layers
 
-read -p "How many qubits for sentences? " chosen_sents
+read -p "How many qubits for Atomic Types? " chosen_qubits
 
-read -p "How many qubits for nouns? " chosen_nouns
-
-read -p "How many qubits for prepositional phrases? " chosen_prep
-
-command="python create_circuits.py --syntax $chosen_syntax --ansatz $chosen_ansatz --layers $chosen_layers --q_n $chosen_nouns --q_s $chosen_sents --dataset $selected_file"
+command="python create_circuits.py --syntax $chosen_syntax --ansatz $chosen_ansatz --layers $chosen_layers --q_n $chosen_qubits --q_np $chosen_qubits --q_pp $chosen_qubits --q_c $chosen_qubits --dataset $selected_file"
 
 if [ "$found_s" = true ]; then
   command+=" --filename single_sentence.pkl"

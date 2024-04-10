@@ -13,7 +13,10 @@ ANSATZ = "iqp"
 LAYERS = 1
 Q_S = 1
 Q_N = 2
+Q_NP = 2
 Q_PP = 2
+Q_C = 2
+Q_PUNC = 1
 
 𝓧 = None
 FIDELITY = 100
@@ -26,7 +29,10 @@ kwargs = {
       "layers": LAYERS,
       "q_s": Q_S,
       "q_n": Q_N,
+      "q_np": Q_NP,
       "q_pp": Q_PP,
+      "q_c": Q_C,
+      "q_punc": Q_PUNC,
       "X": 𝓧,
       "fidelity": FIDELITY,
 }

@@ -25,3 +25,5 @@ sleep 2
 
 ./simulate.sh createdCircuits/single_sentence.pkl
 ./postprocess.sh createdSimulations/single_sentence
+
+rm -rf createdSimulations/single_sentence

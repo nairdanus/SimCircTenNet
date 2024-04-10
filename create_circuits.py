@@ -12,9 +12,7 @@ def create_circuits(dataset,
                     syntax, 
                     ansatz,
                     layers,
-                    q_s,
-                    q_n,
-                    q_pp,
+                    q_s, q_n, q_np, q_pp, q_c, q_punc,
                     draw=False,
                     filename=None):
     
@@ -23,7 +21,7 @@ def create_circuits(dataset,
     if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
 
     if not filename:
-        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_n}.pkl"
+        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_np}_{q_pp}_{q_c}_{q_punc}.pkl"
         if os.path.exists(os.path.join("createdCircuits", filename)):
             return filename
 
@@ -33,7 +31,10 @@ def create_circuits(dataset,
                  n_layers=layers,
                  q_s=q_s,
                  q_n=q_n,
-                 q_pp=q_pp)
+                 q_np=q_np,
+                 q_pp=q_pp,
+                 q_c=q_c,
+                 q_punc=q_punc)
 
     if draw is True:
         d.string_diagrams[0].draw(path="string.png")
@@ -87,6 +88,9 @@ if __name__ == "__main__":
     parser.add_argument('--q_s', type=int, help='How many Qubits for sentences.', default=1, required=False)
     parser.add_argument('--q_n', type=int, help='How many Qubits for nouns.', default=1, required=False)
     parser.add_argument('--q_pp', type=int, help='How many Qubits for prepositional phrases.', default=1, required=False)
+    parser.add_argument('--q_c', type=int, help='How many Qubits for conjunction.', default=1, required=False)
+    parser.add_argument('--q_np', type=int, help='How many Qubits for noun phrases.', default=1, required=False)
+    parser.add_argument('--q_punc', type=int, help='How many Qubits for punctuation.', default=0, required=False)
     parser.add_argument('--filename', type=str, help='What filename to save the 🥒-file')
     parser.add_argument('--draw', type=bool,
                         help='Draws example string diagram and quantum circuit. Saves to string.png and circ.png',
@@ -98,6 +102,9 @@ if __name__ == "__main__":
                     layers=args.layers,
                     q_s=args.q_s,
                     q_n=args.q_n,
+                    q_np=args.q_np,
                     q_pp=args.q_pp,
+                    q_c=args.q_c,
+                    q_punc=args.q_punc,
                     draw=args.draw,
                     filename=args.filename)
