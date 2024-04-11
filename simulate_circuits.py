@@ -21,7 +21,7 @@ def write_meta(input: str):
 
 
 
-def simulate_single_circuit(QCP_circ, fidelity, 𝓧, show_progress_bar=False):
+def simulate_single_circuit(QCP_circ, fidelity=100, 𝓧=None, show_progress_bar=False):
 
     simulator = MPS_Simulator(circ=QCP_circ, fidelity=fidelity, 𝓧=𝓧, show_progress_bar=show_progress_bar)
     simulator.iterate_circ()
