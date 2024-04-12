@@ -3,7 +3,7 @@ from collections import defaultdict
 import yaml
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from time import time
+import time
 
 from simulate_circuits import simulate_single_circuit
 from DisCoCat import DisCoCat
@@ -82,6 +82,7 @@ def analyse_chis(file_name):
     x2 = []
     chi_max = []
     chi_avg = []
+    duration = []
     sentence = data["meta"]["sentence"]
 
     for key, value in data.items():
@@ -90,17 +91,18 @@ def analyse_chis(file_name):
         x2.append(value['numQubits'])
         chi_max.append(value['chi']['max'])
         chi_avg.append(value['chi']['avg'])
+        duration.append(value['duration'])
     
+
     # Plot
     fig, ax1 = plt.subplots()
 
     # Plot Chi Max and Chi Avg on primary y-axis
-    ax1.plot(x2, chi_max, label='Chi Max')
-    ax1.plot(x2, chi_avg, label='Chi Avg')
+    line1, = ax1.plot(x2, chi_max, label='Chi Max')
+    line2, = ax1.plot(x2, chi_avg, label='Chi Avg')
     ax1.set_xlabel('Circuit Width')
     ax1.set_ylabel('Chi Value')
     ax1.set_title(sentence + f"\n{data['meta']['numLayers']} Layers")
-    ax1.legend()
 
     # Create a secondary x-axis with custom labels below the primary x-axis
     ax2 = ax1.twiny()
@@ -108,4 +110,14 @@ def analyse_chis(file_name):
     ax2.set_xticklabels(x1)
     ax2.set_xlabel('Atomic Types')
 
+    # Create a secondary y-axis for duration
+    ax3 = ax1.twinx()  # Create a twin Axes sharing the x-axis
+    line3, = ax3.plot(x2, duration, color='r', label='Duration')  # Plot duration data
+    ax3.set_ylabel('Duration')  # Set label for the secondary y-axis
+
+    # Merge legends
+    lines = [line1, line2, line3]
+    labels = [line.get_label() for line in lines]
+    ax1.legend(lines, labels, loc='upper left')
+    
     plt.show()
