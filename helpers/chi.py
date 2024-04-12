@@ -26,7 +26,15 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
     valid_chars = '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     out_file_name = os.path.join("createdChis", ''.join(c for c in sentence[:255].strip().replace(" ", "_") if c in valid_chars) + ".yaml")
     
-    test_set = list(range(1, 25))
+    test_set = list(range(1, 16))
+
+    if os.path.exists(out_file_name):
+        confirmation = input(f"Do you want to overwrite {sentence}? [yes/no]")
+        match confirmation:
+            case "yes" | "y":
+                print(f"Overwriting {sentence}...")
+            case _:
+                exit(1)
 
     for param in tqdm(test_set):
 
@@ -44,7 +52,7 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
                     q_c=param,
                     q_punc=param,
                     )
-        if draw:
+        if draw and param < 10:
             draw_path = out_file_name.replace(".yaml", "")
             if not os.path.exists(draw_path): os.mkdir(draw_path)
             if param == test_set[0]: 
