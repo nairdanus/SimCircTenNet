@@ -8,7 +8,7 @@ from tqdm import tqdm
 # Import Qiskit
 from qiskit_aer import AerSimulator
 
-from MPS.simulator import MPS_Simulator
+from MPS import MPS_Simulator
 
 META_FILE = ""
 
