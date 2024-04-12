@@ -3,6 +3,7 @@ from collections import defaultdict
 import yaml
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from time import time
 
 from simulate_circuits import simulate_single_circuit
 from DisCoCat import DisCoCat
@@ -28,6 +29,9 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
     test_set = list(range(1, 25))
 
     for param in tqdm(test_set):
+
+        start = time.time()
+
         d = DisCoCat(syntax_model="pre",
                     dataset_name="chi_test",
                     ansatz="iqp",
@@ -59,6 +63,7 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
                 "max": max(simulator.real_𝓧s) if simulator.real_𝓧s else 0
                 },
             "numAngles": len(simulator.param_angles),
+            "duration": time.time() - start,
         }
         with open(out_file_name, "w") as f:
             yaml.dump(dict(output), f)
