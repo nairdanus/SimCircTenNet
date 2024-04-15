@@ -40,7 +40,11 @@ class Classificator:
 
     def apply_spsa(self):
         result = self.spsa.minimize(self.loss_function, x0=self.angle_list)
-        self.write_angles(result)
+        new_angle_list = []
+        for a in result.x:
+            a = a % (2*cmath.pi)
+            new_angle_list.append(a)
+        self.write_angles(new_angle_list)
         return result
     
     def loss_function(self, angles):
@@ -56,10 +60,10 @@ class Classificator:
     def get_simulation_result(self):
         self.prob = postprocess_single_circuit(self.simulator)
     
-    def write_angles(self, new_angles):
+    def write_angles(self, new_angle_list):
         new_angles = defaultdict(float)
         for i, key in enumerate(self.angles.keys()):
-            new_angles[key] = new_angles[i]
+            new_angles[key] = new_angle_list[i]
         update_angles(new_angles)
 
 
