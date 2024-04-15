@@ -1,3 +1,3 @@
-__all__ = ['DisCoCat']
+__all__ = ['DisCoCat_main']
 
-from DisCoCat.main import DisCoCat
+from .DisCoCat_main import DisCoCat
