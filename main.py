@@ -5,8 +5,8 @@ import time
 from ML import train, evaluate
 
 
-DATASET = "100_animals_plants.csv"
-TESTSET = "10_animals_plants.csv"
+DATASET = "grammar_aware.csv"
+TESTSET = "test_grammar_aware.csv"
 SYNTAX = "pre"
 
 ANSATZ = "iqp"
@@ -21,7 +21,7 @@ Q_PUNC = 1
 𝓧 = None
 FIDELITY = 100
 
-EPOCHS = 10
+EPOCHS = 10 
 
 kwargs = {
       "syntax": SYNTAX,

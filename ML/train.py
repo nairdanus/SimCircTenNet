@@ -6,6 +6,8 @@ import os
 import shutil
 import yaml
 
+from qiskit_algorithms.optimizers import SPSA
+
 from QCPcircuit import QCPcircuit
 from helpers. angle_preparation import get_angles, update_angles
 
@@ -18,7 +20,7 @@ from postprocess_circuits import postprocess_single_circuit
 
 class Classificator:
 
-    def __init__(self, circ: QCPcircuit, meta: tuple, learning_rate: float, 𝓧=None, fidelity=100):
+    def __init__(self, circ: QCPcircuit, meta: tuple, learning_rate: float, perturbation: float, 𝓧=None, fidelity=100):
         self.learning_rate = learning_rate
         self.fidelity = fidelity
         self.𝓧 = 𝓧
@@ -27,60 +29,50 @@ class Classificator:
         self.simulator = None
         self.run_simulation()
         self.angles = get_angles(self.simulator.param_angles)
-        self.perturbed_angles = {n: a for n, a in self.angles.items()}
+        self.angle_list = list(self.angles.values())
 
         self.prob = None
-        self.get_simulation_result()
-
+        
         self.meta = meta
         self.gold = meta[1]
 
-        self.correct = self.prob[self.gold] > 0.5
+        self.spsa = SPSA(maxiter=100, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
 
+    def apply_spsa(self):
+        result = self.spsa.minimize(self.loss_function, x0=self.angle_list)
+        self.write_angles(result)
+        return result
+    
+    def loss_function(self, angles):
+        # Cross-entropy loss
+        self.write_angles(angles)
+        self.run_simulation()
+        self.get_simulation_result()
+        return -np.log(self.prob[self.gold])
 
     def run_simulation(self):
         self.simulator = simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
 
     def get_simulation_result(self):
         self.prob = postprocess_single_circuit(self.simulator)
-
-    def loss_function(self):
-        # Cross-entropy loss
-        return -np.log(self.prob[self.gold])
-
-    def perturb(self, angle):
-        update_angles({ angle: (self.angles[angle] + 0.001) % (2*cmath.pi) })  # Small perturbation
-
-    def reset(self):
-        update_angles(self.angles)
-
-    def apply_gradient_descent(self):
-        gradients = defaultdict(float)
-        for angle in tqdm(self.angles, total=len(self.angles), desc="Angles: "):
-            original_loss = self.loss_function()
-            self.perturb(angle)
-
-            # Calculate the gradient using finite differences
-            self.run_simulation()
-            self.get_simulation_result()
-            perturbed_loss = self.loss_function()
-            
-            gradients[angle] = (perturbed_loss - original_loss) / 0.001
-            self.reset()
-
-        # Update rotation angles using gradients and learning rate
-        update_angles({
-            angle: (self.angles[angle] - self.learning_rate * gradients[angle]) % (2*cmath.pi) for angle in gradients
-        })
+    
+    def write_angles(self, new_angles):
+        new_angles = defaultdict(float)
+        for i, key in enumerate(self.angles.keys()):
+            new_angles[key] = new_angles[i]
+        update_angles(new_angles)
 
 
 def train(dataset,
           syntax,
           ansatz,
           layers,
-          q_s,
-          q_n,
-          q_pp,
+          q_s, 
+          q_n, 
+          q_np,
+          q_pp, 
+          q_c,
+          q_punc,
           𝓧,
           fidelity):
 
@@ -100,16 +92,20 @@ def train(dataset,
                                     layers=layers,
                                     q_s=q_s,
                                     q_n=q_n,
-                                    q_pp=q_pp)
+                                    q_np=q_np,
+                                    q_pp=q_pp,
+                                    q_c= q_c,
+                                    q_punc=q_punc)
     
     for (meta, circ, _) in load_circuits(circuits_path):
+        print(meta)
         classificator = Classificator(circ=circ,
                                       meta=meta,
-                                      learning_rate=0.01,
+                                      learning_rate=0.05,
+                                      perturbation=0.06,
                                       𝓧=𝓧,
                                       fidelity=fidelity)
-        print(classificator.meta, classificator.correct)
-        classificator.apply_gradient_descent()
+        classificator.apply_spsa()
 
     if os.path.exists(param_path): os.remove(param_path)
     os.rename("angles.yaml", param_path)
