@@ -215,8 +215,7 @@ class MPS_Simulator:
             zero_nodes.append(node)
 
         
-        indices = [i for i in self.indices if i in self.unmeasured_gates]
-        mps.reverse()
+        indices = reversed([i for i in self.indices if i in self.unmeasured_gates])
         de = []
         for i in indices:
             de.append(mps[i].get_all_dangling().pop())
