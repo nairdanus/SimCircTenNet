@@ -24,7 +24,6 @@ class MPS_Simulator:
     """
 
     shrink_after_measure = True
-    post_selection = True
 
     def __init__(self, 
                  circ: QCPcircuit, 
@@ -32,7 +31,7 @@ class MPS_Simulator:
                  𝓧: Optional[int] = None,
                  show_progress_bar: Optional[bool] = False,
                  circ_name: Optional[Text] = "./trash",
-                 post_selection: Optional[bool] = None):
+                 post_selection: Optional[bool] = True):
         self.𝓧 = 𝓧
         self.threshold = None if not fidelity or fidelity == 100 else 100 - fidelity
         self.circ = circ
@@ -45,7 +44,7 @@ class MPS_Simulator:
         self.unmeasured_gates = set()
         self.param_angles = set()
         self.real_𝓧s = []
-        if post_selection: self.post_selection = post_selection
+        self.post_selection = post_selection
 
 
     def create_MPS(self):
@@ -166,16 +165,13 @@ class MPS_Simulator:
         Runs contract_mps_postselection and returns the tensor (should be scalar for binary classification).
         """
         node = self.contract_mps_postselection()
-        if len(node.edges) != 1:
-            raise NotImplementedError(
-                f"Number of edges is {len(node.edges)}. Only binary classification possible at the moment."
-            )
-        return node.tensor
+        return np.reshape(node.tensor, newshape=(2**len(self.unmeasured_gates)))
 
     def contract_mps(self) -> tn.Node:
         """
         Contracts all connected edges of the MPS.
         Returns a Node having as many edges as the MPS has.
+        The edge order is not correct and needs to be corrected!
         The original MPS is kept in self.network.
         """
         mps = list(tn.copy(self.network)[0].values())
@@ -205,9 +201,9 @@ class MPS_Simulator:
 
     def contract_mps_postselection(self) -> tn.Node:
         """
-        Contracts the MPS with the assumption that all nodes measured 0,
-        except the node with index node_index.
-        Returns the contracted mps: one node with one dimension (vector).
+        Contracts the MPS with the assumption that all measured nodes measured 0.
+        Returns the contracted mps: one node with with len(unmeasured_gates) edges.
+        The node should already have the correct edge_order.
         The original MPS is kept in self.network.
         """
         mps = list(tn.copy(self.network)[0].values())
@@ -218,7 +214,17 @@ class MPS_Simulator:
             node.edges[0] ^ mps[mgi].get_all_dangling()[0]
             zero_nodes.append(node)
 
-        result = tn.contractors.auto(mps+zero_nodes, ignore_edge_order=True)
+        
+        indices = [i for i in self.indices if i in self.unmeasured_gates]
+        mps.reverse()
+        de = []
+        for i in indices:
+            de.append(mps[i].get_all_dangling().pop())
+        assert len(self.unmeasured_gates) == len(de), \
+            "RESULT POSTSELECTION NOT WORKING. Number of dangling edges unequal to number of unmeasured gates."
+
+        result = tn.contractors.auto(mps+zero_nodes, output_edge_order=de)
+
         return result
 
 

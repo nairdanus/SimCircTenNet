@@ -5,24 +5,8 @@ from collections import defaultdict
 import numpy as np
 
 from MPS import MPS_Simulator
-from helpers. braket import v2d
+from helpers. braket import v2d, remove_equal_bits
 
-def remove_equal_parts(str1, str2):
-    result_str1 = ""
-    result_str2 = ""
-    for char1, char2 in zip(str1, str2):
-        if char1 != char2:
-            result_str1 += char1
-            result_str2 += char2
-    return result_str1, result_str2
-
-def remove_equal_bits(d):
-    if len(d) != 2: return d
-    res = defaultdict()
-    k_0, k_1 = remove_equal_parts(list(d.keys())[0], list(d.keys())[1])
-    res[k_0] = d[list(d.keys())[0]]
-    res[k_1] = d[list(d.keys())[1]]
-    return dict(res)
 
 
 def postprocess_single_circuit(simulator):

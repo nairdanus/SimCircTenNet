@@ -81,6 +81,21 @@ def v2d(v, ignore_small_values=False):
     return s2d(v2s(v, ignore_small_values))
 
 
+def remove_equal_bits(d):
+    def remove_first_equal(d):
+        keys = list(d.keys())
+        assert all(len(key) == len(keys[0]) for key in keys), "BITS NOT EQUAL LENGTH IN REMOVE EQUAL BITS"
+        if len(keys[0]) == 1: return
+        for i, b in enumerate(keys[0]):
+            if all(key[i] == b for key in keys):
+                d = {k[:i] + k[i+1:]: v for k, v in d.items()}
+                return d
+    while True:
+        new_d = remove_first_equal(d)
+        if new_d:
+            d = new_d
+        else:
+            return d
 
 if __name__ == "__main__":
     #a = [0.70710678+0.j, 0.        +0.j, 0.70710678+0.j, 0.        +0.j]

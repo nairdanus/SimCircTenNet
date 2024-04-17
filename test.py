@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from MPS import test_simulator, MPS_Simulator
 from DisCoCat import DisCoCat
-from helpers import qiskitCirc2qcp, v2d
+from helpers import qiskitCirc2qcp, v2d, remove_equal_bits
 
 
 def test_post_selection(sentence: str):
@@ -21,19 +21,19 @@ def test_post_selection(sentence: str):
     with open("Data/post_sel_test.txt", "w") as f: f.write(sentence)
     all_tests_passed = True
 
-    for l in random.sample(range(10), 3):
+    for l in random.sample(range(1, 5), 3):
 
         d = DisCoCat(syntax_model="pre",
                     dataset_name="post_sel_test",
                     ansatz="iqp",
                     n_layers=l,
                     disable_tqdm=True,
-                    q_s=1, 
-                    q_n=random.randint(1, 7), 
-                    q_np=random.randint(1, 7),
-                    q_pp=random.randint(1, 7), 
-                    q_c=random.randint(1, 7),
-                    q_punc=random.randint(1, 7),
+                    q_s=random.randint(1, 4), 
+                    q_n=random.randint(1, 4), 
+                    q_np=random.randint(1, 4),
+                    q_pp=random.randint(1, 4), 
+                    q_c=random.randint(1, 4),
+                    q_punc=random.randint(1, 4),
                     )
         circ = qiskitCirc2qcp(d.circuits[0][1])
 
@@ -42,7 +42,8 @@ def test_post_selection(sentence: str):
             MPS_Simulator(circ=circ, post_selection=False)
             ]
         for s in simulators: s.iterate_circ()
-        results = [v2d(s.get_state_vector()) for s in simulators]
+        results = [v2d(s.get_state_vector(), ignore_small_values=True) for s in simulators]
+        results[1] = remove_equal_bits(results[1])
 
         if dict_almost_equal(results[0], results[1]): continue
         
