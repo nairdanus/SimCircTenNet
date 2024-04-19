@@ -32,13 +32,20 @@ class Classificator:
         self.angle_list = list(self.angles.values())
 
         self.prob = None
-        
+        self.get_simulation_result()
+        self.error = False
+        if len(self.prob) != 2:
+            print(f"RESULT NOT BINARY AT SENT {meta}. Probably not reduced to s. \n   -> ANGLES WERE NOT UPDATED.")
+            self.error = True
+            return
+
         self.meta = meta
         self.gold = meta[1]
 
         self.spsa = SPSA(maxiter=100, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
 
     def apply_spsa(self):
+        if self.error: return
         result = self.spsa.minimize(self.loss_function, x0=self.angle_list)
         new_angle_list = []
         for a in result.x:

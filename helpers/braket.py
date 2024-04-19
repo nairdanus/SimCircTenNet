@@ -21,6 +21,8 @@ def v2s(v, ignore_small_values=False):
             if v[i] == 0: continue
             a = v[i] if v[i].imag else v[i].real
             yield str(a)+q
+                    
+    if ignore_small_values and not "".join(i()): return v2s(v, ignore_small_values=False) 
 
     return " + ".join(i()) + (" (<INVALID_SUM>)" if not valid_sum else "")
 

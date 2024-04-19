@@ -18,8 +18,6 @@ def postprocess_single_circuit(simulator):
     else:
         result = v2d(result_vec, ignore_small_values=False)
 
-    assert len(result) == 2, "Postprocess has three labels!!!"
-
     return result
 
 
