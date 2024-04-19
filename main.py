@@ -10,18 +10,18 @@ TESTSET = "test_grammar_aware.csv"
 SYNTAX = "pre"
 
 ANSATZ = "iqp"
-LAYERS = 1
+LAYERS = 3
 Q_S = 1
-Q_N = 2
-Q_NP = 2
-Q_PP = 2
-Q_C = 2
+Q_N = 3
+Q_NP = 3
+Q_PP = 3
+Q_C = 3
 Q_PUNC = 1
 
 𝓧 = None
 FIDELITY = 100
 
-EPOCHS = 10 
+EPOCHS = 50 
 
 kwargs = {
       "syntax": SYNTAX,
@@ -53,6 +53,12 @@ if __name__=="__main__":
       Q_S = {Q_S}
       Q_N = {Q_N}
       Q_PP = {Q_PP}
+      Q_S = {Q_S}
+      Q_N = {Q_N}
+      Q_NP = {Q_NP}
+      Q_PP = {Q_PP}
+      Q_C = {Q_C}
+      Q_PUNC = {Q_PUNC}
 
       𝓧 = {𝓧}
       FIDELITY = {FIDELITY}
