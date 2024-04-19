@@ -70,7 +70,11 @@ def s2d(s:str):
     ket_elements = ket.split(" + ")
     res = defaultdict(float)
     for ket_element in ket_elements:
-        p, bits = ket_element.split("|")
+        try:
+            p, bits = ket_element.split("|")
+        except ValueError as e:
+            print(e)
+            print("STATE-STRING WITH ERROR: ", s)
         bits = bits.replace("⟩", "")
         p = abs(complex(p)) ** 2
         res[bits] = p

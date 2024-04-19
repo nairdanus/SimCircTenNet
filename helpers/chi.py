@@ -9,7 +9,7 @@ from simulate_circuits import simulate_single_circuit
 from DisCoCat import DisCoCat
 from helpers import qiskitCirc2qcp
 
-def get_chis(sentence: str, n_layers=3, draw=False) -> str:
+def get_chis(sentence: str, n_layers=3, draw=False, disable_tqdm=True) -> str:
     """
     Takes a sentence and then simulates different circuits for that sentence.
     These circuits are then simulated with different circuit widths.
@@ -36,7 +36,7 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
             case _:
                 exit(1)
 
-    for param in tqdm(test_set):
+    for param in tqdm(test_set, disable=disable_tqdm):
 
         start = time.time()
 
@@ -52,7 +52,7 @@ def get_chis(sentence: str, n_layers=3, draw=False) -> str:
                     q_c=param,
                     q_punc=param,
                     )
-        if draw and param < 10:
+        if draw and param < 3:
             draw_path = out_file_name.replace(".yaml", "")
             if not os.path.exists(draw_path): os.mkdir(draw_path)
             if param == test_set[0]: 
