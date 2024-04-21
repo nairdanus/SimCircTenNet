@@ -20,7 +20,9 @@ from postprocess_circuits import postprocess_single_circuit
 
 class Classificator:
 
-    def __init__(self, circ: QCPcircuit, meta: tuple, learning_rate: float, perturbation: float, 𝓧=None, fidelity=100):
+    def __init__(self, circ: QCPcircuit, meta: tuple, 
+                 learning_rate: float, perturbation: float, maxiter: int, 
+                 𝓧=None, fidelity=100):
         self.learning_rate = learning_rate
         self.fidelity = fidelity
         self.𝓧 = 𝓧
@@ -42,7 +44,7 @@ class Classificator:
         self.meta = meta
         self.gold = meta[1]
 
-        self.spsa = SPSA(maxiter=100, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
+        self.spsa = SPSA(maxiter=maxiter, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
 
     def apply_spsa(self):
         if self.error: return
@@ -85,7 +87,8 @@ def train(dataset,
           q_c,
           q_punc,
           𝓧,
-          fidelity):
+          fidelity,
+          MAX_SPSA_ITER = 100):
 
     if not os.path.exists("createdParams"): os.mkdir("createdParams")
     param_path = os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml")
@@ -114,6 +117,7 @@ def train(dataset,
                                       meta=meta,
                                       learning_rate=0.05,
                                       perturbation=0.06,
+                                      maxiter=MAX_SPSA_ITER,
                                       𝓧=𝓧,
                                       fidelity=fidelity)
         classificator.apply_spsa()

@@ -22,6 +22,7 @@ Q_PUNC = 1
 FIDELITY = 100
 
 EPOCHS = 50 
+MAX_SPSA_ITER = 50
 
 kwargs = {
       "syntax": SYNTAX,
@@ -35,6 +36,7 @@ kwargs = {
       "q_punc": Q_PUNC,
       "X": 𝓧,
       "fidelity": FIDELITY,
+      "MAX_SPSA_ITER": MAX_SPSA_ITER,
 }
 
 out_file = f"TRAIN_{time.time()}.txt"
@@ -64,6 +66,7 @@ if __name__=="__main__":
       FIDELITY = {FIDELITY}
 
       EPOCHS = {EPOCHS}
+      MAX_SPSA_ITER = {MAX_SPSA_ITER}
 
 ______________________________________________________________
 
