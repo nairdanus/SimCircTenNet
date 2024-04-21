@@ -487,13 +487,13 @@ class MPS_Simulator:
             self.real_𝓧s.append(max(u.tensor.shape)+len(trun_vals))
 
         except np.linalg.LinAlgError as LinAlgError:
-            with open("LINALG_ERROR.pkl", "w") as err_file:
-                pickle.dump((node1, node2, uu, new_node, l, r), file=err_file)
             print("Following tensor did not converge:")
             print(new_node.tensor)
             print("Min: ", new_node.tensor.min())
             print("Max: ", new_node.tensor.max())
             print("NaN at indices: ", np.argwhere(np.isnan(new_node.tensor)))
+            
+            # new_node.tensor.tofile("LINALG_ERROR.txt")
             raise LinAlgError
 
         self.network[ctl] = u
