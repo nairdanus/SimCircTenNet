@@ -32,9 +32,12 @@ def evaluate(param_path,
              syntax,
              ansatz,
              layers,
-             q_s,
-             q_n,
-             q_pp,
+             q_s, 
+             q_n, 
+             q_np,
+             q_pp, 
+             q_c,
+             q_punc,
              𝓧,
              fidelity):
 
@@ -44,7 +47,11 @@ def evaluate(param_path,
                                     layers=layers,
                                     q_s=q_s,
                                     q_n=q_n,
-                                    q_pp=q_pp)
+                                    q_np=q_np,
+                                    q_pp=q_pp,
+                                    q_c= q_c,
+                                    q_punc=q_punc)
+                                    
     if os.path.exists("angles.yaml"): os.remove("angles.yaml")
     shutil.copyfile(param_path, "angles.yaml")
     
