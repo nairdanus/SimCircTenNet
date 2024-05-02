@@ -74,7 +74,7 @@ class CompleteClassificator:
         
         if LOSS == "CROSS":
             loss = (1/len(self.probs)) * sum(
-                -np.log(self.probs[i].get("1", 0)) for i in range(len(self.probs)) if i not in self.error_indices
+                -np.log(self.probs[i].get(self.golds[i], 0)) for i in range(len(self.probs)) if i not in self.error_indices
             )
         elif LOSS == "MSE":        
             loss = (1/len(self.probs)) * sum(
