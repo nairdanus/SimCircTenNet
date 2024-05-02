@@ -18,7 +18,7 @@ class Evaluator:
             simulator = simulate_single_circuit(circ, fidelity, 𝓧)
             result = postprocess_single_circuit(simulator)
             gold_label = meta[1]
-            self.correct += result[gold_label]
+            self.correct += result.get(gold_label, 0)
             self.n_circs += 1
 
 

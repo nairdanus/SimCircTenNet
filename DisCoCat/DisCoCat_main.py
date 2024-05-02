@@ -25,7 +25,7 @@ class DisCoCat():
                  q_pp: int,
                  q_c: int,
                  q_punc: int,
-                 n_single_q: int = 3,
+                 n_single_q: int = 12,
                  disable_tqdm = False):
         """
 

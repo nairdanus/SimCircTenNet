@@ -3,77 +3,15 @@ from collections import defaultdict
 from tqdm import tqdm
 import cmath
 import os
+import sys
 import shutil
 import yaml
-
-from qiskit_algorithms.optimizers import SPSA
-
-from QCPcircuit import QCPcircuit
-from helpers. angle_preparation import get_angles, update_angles
+from time import time
 
 from create_circuits import create_circuits, load_circuits
-from simulate_circuits import simulate_single_circuit
-from postprocess_circuits import postprocess_single_circuit
 
-
-
-
-class Classificator:
-
-    def __init__(self, circ: QCPcircuit, meta: tuple, 
-                 learning_rate: float, perturbation: float, maxiter: int, 
-                 𝓧=None, fidelity=100):
-        self.learning_rate = learning_rate
-        self.fidelity = fidelity
-        self.𝓧 = 𝓧
-
-        self.circ = circ
-        self.simulator = None
-        self.run_simulation()
-        self.angles = get_angles(self.simulator.param_angles)
-        self.angle_list = list(self.angles.values())
-
-        self.prob = None
-        self.get_simulation_result()
-        self.error = False
-        if len(self.prob) != 2:
-            print(f"RESULT NOT BINARY AT SENT {meta}. Probably not reduced to s. \n   -> ANGLES WERE NOT UPDATED.")
-            self.error = True
-            return
-
-        self.meta = meta
-        self.gold = meta[1]
-
-        self.spsa = SPSA(maxiter=maxiter, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
-
-    def apply_spsa(self):
-        if self.error: return
-        result = self.spsa.minimize(self.loss_function, x0=self.angle_list)
-        new_angle_list = []
-        for a in result.x:
-            a = a % (2*cmath.pi)
-            new_angle_list.append(a)
-        self.write_angles(new_angle_list)
-        return result
-    
-    def loss_function(self, angles):
-        # Cross-entropy loss
-        self.write_angles(angles)
-        self.run_simulation()
-        self.get_simulation_result()
-        return -np.log(self.prob[self.gold])
-
-    def run_simulation(self):
-        self.simulator = simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
-
-    def get_simulation_result(self):
-        self.prob = postprocess_single_circuit(self.simulator)
-    
-    def write_angles(self, new_angle_list):
-        new_angles = defaultdict(float)
-        for i, key in enumerate(self.angles.keys()):
-            new_angles[key] = new_angle_list[i]
-        update_angles(new_angles)
+from ML.classificators import SingleSentClassificator
+from ML.classificators import CompleteClassificator
 
 
 def train(dataset,
@@ -88,7 +26,8 @@ def train(dataset,
           q_punc,
           𝓧,
           fidelity,
-          MAX_SPSA_ITER = 100):
+          MAX_SPSA_ITER = 100,
+          method = "complete"):
 
     if not os.path.exists("createdParams"): os.mkdir("createdParams")
     param_path = os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml")
@@ -111,18 +50,27 @@ def train(dataset,
                                     q_c= q_c,
                                     q_punc=q_punc)
     
-    for (meta, circ, _) in load_circuits(circuits_path):
-        print(meta)
-        classificator = Classificator(circ=circ,
-                                      meta=meta,
-                                      learning_rate=0.05,
-                                      perturbation=0.06,
-                                      maxiter=MAX_SPSA_ITER,
-                                      𝓧=𝓧,
-                                      fidelity=fidelity)
+    classificator_params = {
+        "learning_rate": 0.0015,
+        "perturbation": 0.06,
+        "maxiter": MAX_SPSA_ITER,
+        "X": 𝓧,
+        "fidelity": fidelity
+    }
+    if method == "single":
+        for (meta, circ, _) in load_circuits(circuits_path):
+            print(meta)
+            sys.stdout.flush()
+            classificator = SingleSentClassificator(circ=circ,
+                                                    meta=meta,
+                                                    **classificator_params)
+            classificator.apply_spsa()
+    else:
+        classificator = CompleteClassificator(circs=load_circuits(circuits_path), **classificator_params)
         classificator.apply_spsa()
 
     if os.path.exists(param_path): os.remove(param_path)
     os.rename("angles.yaml", param_path)
+    shutil.copyfile(param_path, param_path.replace(".yaml", "_" + str(time()) + ".yaml"))
 
     return param_path

@@ -4,24 +4,23 @@ import time
 
 from ML import train, evaluate
 
-
 DATASET = "grammar_aware.csv"
 TESTSET = "test_grammar_aware.csv"
 SYNTAX = "pre"
 
 ANSATZ = "iqp"
-LAYERS = 3
+LAYERS = 7
 Q_S = 1
-Q_N = 3
-Q_NP = 3
-Q_PP = 3
-Q_C = 3
+Q_N = 1
+Q_NP = 1
+Q_PP = 1
+Q_C = 1
 Q_PUNC = 1
 
 𝓧 = None
 FIDELITY = 100
 
-EPOCHS = 50 
+EPOCHS = 50
 MAX_SPSA_ITER = 50
 
 kwargs = {
@@ -36,7 +35,6 @@ kwargs = {
       "q_punc": Q_PUNC,
       "X": 𝓧,
       "fidelity": FIDELITY,
-      "MAX_SPSA_ITER": MAX_SPSA_ITER,
 }
 
 out_file = f"TRAIN_{time.time()}.txt"
@@ -74,9 +72,9 @@ ______________________________________________________________
     ))
 
       for e in range(EPOCHS):
-            param_path = train(dataset=DATASET, **kwargs)
+            param_path = train(dataset=DATASET, MAX_SPSA_ITER=MAX_SPSA_ITER, **kwargs)
             print("Evaluating...")
-            acc = evaluate(dataset=TESTSET, param_path=param_path, **kwargs)
+            acc = evaluate(dataset=DATASET, param_path=param_path, **kwargs)
             print(f"Accuracy: {acc}")
             with open(out_file, 'a') as f:
                   f.write(f"Accuracy at epoch {e}: {acc}\n")
