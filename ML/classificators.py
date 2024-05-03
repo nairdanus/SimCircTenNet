@@ -7,6 +7,7 @@ import sys
 import shutil
 import yaml
 from time import time
+from typing import Literal
 
 from simulate_circuits import simulate_single_circuit
 from postprocess_circuits import postprocess_single_circuit
@@ -17,16 +18,31 @@ from helpers. angle_preparation import get_angles, update_angles
 from qiskit_algorithms.optimizers import SPSA
 from scipy.optimize import minimize
 
-LOSS = "CROSS"
-# LOSS = "MSE"
+from concurrent.futures import ThreadPoolExecutor
 
 
-class CompleteClassificator:
 
-    def __init__(self, circs: list, 
-                 learning_rate: float, perturbation: float, maxiter: int, 
-                 𝓧=None, fidelity=100):
-        self.learning_rate = learning_rate
+class Trainer:
+
+    def __init__(self,
+                 circs: list,
+                 method: Literal["COBYLA", "SPSA"],
+                 cost: Literal["CROSS", "MSE"],
+                 maxiter: int,
+                 learning_rate: float, # ONLY WITH SPSA
+                 perturbation: float,  # ONLY WITH SPSA
+                 𝓧=None, 
+                 fidelity=100,
+                 out_file="train.txt"):
+        self.out_file = out_file
+        
+        self.cost = cost
+        self.method = method
+        if method == "SPSA":
+            self.spsa = SPSA(maxiter=maxiter, 
+                             learning_rate=learning_rate, perturbation=perturbation, 
+                             second_order=False)
+
         self.fidelity = fidelity
         self.𝓧 = 𝓧
 
@@ -50,41 +66,56 @@ class CompleteClassificator:
                 print(f"RESULT NOT BINARY AT SENT {self.metas[i]}. Probably not reduced to s. \n   -> ANGLES WERE NOT UPDATED.")
                 self.error_indices.add(i)
 
-        self.spsa = SPSA(maxiter=maxiter, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
-        self.spsa_iter = 0
+        self.max_iter = maxiter
+        self.cur_iter = 0
+        
+        self.cur_time = time()
 
-    def apply_spsa(self):
+    def train(self):
         print("Minimizing")
         sys.stdout.flush()
-        result = minimize(self.loss_function, self.angle_list, method='COBYLA', options={"maxiter": 1000})
-        new_angle_list = []
-        for a in result.x:
-            a = a % (2*cmath.pi)
-            new_angle_list.append(a)
-        self.write_angles(new_angle_list)
+
+        if self.method == "SPSA":
+            result = self.spsa.minimize(fun=self.loss_function, x0=self.angle_list)
+        elif self.method == "COBYLA":
+            result = minimize(self.loss_function, self.angle_list, 
+                              method='COBYLA', options={"maxiter": self.max_iter})
+        else:
+            print("WHAT IS THE TRAINING METHOD???")
+            exit(1)
+
         return result
     
     def loss_function(self, angles):
-        self.spsa_iter += 1
-        print(f"iter {self.spsa_iter}")
-        sys.stdout.flush()
         self.write_angles(angles)
         self.run_simulation()
         self.get_simulation_result()
-        
-        if LOSS == "CROSS":
-            loss = (1/len(self.probs)) * sum(
-                -np.log(self.probs[i].get(self.golds[i], 0)) for i in range(len(self.probs)) if i not in self.error_indices
+
+        K = [i for i in range(len(self.probs)) if i not in self.error_indices]
+        N = len(K)
+
+        if self.cost == "CROSS":
+            loss = -(1/N) * sum(
+                int(self.golds[i]) * np.log(self.probs[i].get("1", 0)) + (1-int(self.golds[i])) * np.log(1-self.probs[i].get("1", 0))
+                for i in K
             )
-        elif LOSS == "MSE":        
-            loss = (1/len(self.probs)) * sum(
+        elif self.cost == "MSE":
+            loss = (1/N) * sum(
                 (self.probs[i].get("1", 0) - int(self.golds[i]))**2 
-                for i in range(len(self.probs)) if i not in self.error_indices 
+                for i in K
             )
         else:
             print("WHAT IS THE COST FUNCTION???")
             exit(1)
-        print(loss)
+
+        self.cur_iter += 1
+        elapsed_time = time() - self.cur_time
+        self.cur_time = time()
+        out = f"iter {self.cur_iter}: {loss}\n\tTime passed: {elapsed_time}\n"
+        with open(self.out_file, mode="a") as f:
+            f.write(out)
+        print(out)
+        sys.stdout.flush()
         return loss
 
     def run_simulation(self):
@@ -102,70 +133,3 @@ class CompleteClassificator:
         for i, key in enumerate(self.angle_dict.keys()):
             new_angles[key] = new_angle_list[i]
         update_angles(new_angles)
-
-
-
-
-class SingleSentClassificator:
-
-    def __init__(self, circ: QCPcircuit, meta: tuple, 
-                 learning_rate: float, perturbation: float, maxiter: int, 
-                 𝓧=None, fidelity=100):
-        self.learning_rate = learning_rate
-        self.fidelity = fidelity
-        self.𝓧 = 𝓧
-
-        self.circ = circ
-        self.simulator = None
-        self.run_simulation()
-        self.angles = get_angles(self.simulator.param_angles)
-        self.angle_list = list(self.angles.values())
-
-        self.prob = None
-        self.get_simulation_result()
-        self.error = False
-        if len(self.prob) != 2:
-            print(f"RESULT NOT BINARY AT SENT {meta}. Probably not reduced to s. \n   -> ANGLES WERE NOT UPDATED.")
-            self.error = True
-            return
-
-        self.meta = meta
-        self.gold = meta[1]
-
-        self.spsa = SPSA(maxiter=maxiter, learning_rate=learning_rate, perturbation=perturbation, second_order=False)
-
-    def apply_spsa(self):
-        if self.error: return
-        result = self.spsa.minimize(self.loss_function, x0=self.angle_list)
-        new_angle_list = []
-        for a in result.x:
-            a = a % (2*cmath.pi)
-            new_angle_list.append(a)
-        self.write_angles(new_angle_list)
-        return result
-    
-    def loss_function(self, angles):
-        self.write_angles(angles)
-        self.run_simulation()
-        self.get_simulation_result()
-        
-        # Cross-entropy loss
-        # return -np.log(self.prob.get(self.gold, 0))
-        
-        # Some other loss
-        return (self.prob.get(self.gold, 0) - int(self.gold))**2
-
-
-    def run_simulation(self):
-        self.simulator = simulate_single_circuit(self.circ, self.fidelity, self.𝓧)
-
-    def get_simulation_result(self):
-        self.prob = postprocess_single_circuit(self.simulator)
-    
-    def write_angles(self, new_angle_list):
-        new_angles = defaultdict(float)
-        for i, key in enumerate(self.angles.keys()):
-            new_angles[key] = new_angle_list[i]
-        update_angles(new_angles)
-
-

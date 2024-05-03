@@ -7,27 +7,33 @@ import sys
 import shutil
 import yaml
 from time import time
+from typing import Literal
 
 from create_circuits import create_circuits, load_circuits
 
-from ML.classificators import SingleSentClassificator
-from ML.classificators import CompleteClassificator
+from ML.classificators import Trainer
 
 
-def train(dataset,
-          syntax,
-          ansatz,
-          layers,
-          q_s, 
-          q_n, 
-          q_np,
-          q_pp, 
-          q_c,
-          q_punc,
-          𝓧,
-          fidelity,
-          MAX_SPSA_ITER = 100,
-          method = "complete"):
+def train(dataset: str,
+          syntax: str,
+          ansatz: str,
+          layers: int,
+          n_single_q: int,
+          q_s: int, 
+          q_n: int, 
+          q_np: int,
+          q_pp: int, 
+          q_c: int,
+          q_punc: int,
+          𝓧: int,
+          fidelity: float,
+          method: Literal["COBYLA", "SPSA"],
+          cost: Literal["CROSS", "MSE"],
+          maxiter: int,
+          learning_rate: float, # ONLY WITH SPSA
+          perturbation: float,  # ONLY WITH SPSA
+          out_file: str
+          ):
 
     if not os.path.exists("createdParams"): os.mkdir("createdParams")
     param_path = os.path.join("createdParams", f"{dataset}_{syntax}-{ansatz}_{layers}_{q_s}_{q_n}_{q_pp}–{𝓧}_{fidelity}.yaml")
@@ -48,29 +54,25 @@ def train(dataset,
                                     q_np=q_np,
                                     q_pp=q_pp,
                                     q_c= q_c,
-                                    q_punc=q_punc)
+                                    q_punc=q_punc,
+                                    n_single_q=n_single_q,)
     
-    classificator_params = {
-        "learning_rate": 0.0015,
-        "perturbation": 0.06,
-        "maxiter": MAX_SPSA_ITER,
-        "X": 𝓧,
-        "fidelity": fidelity
-    }
-    if method == "single":
-        for (meta, circ, _) in load_circuits(circuits_path):
-            print(meta)
-            sys.stdout.flush()
-            classificator = SingleSentClassificator(circ=circ,
-                                                    meta=meta,
-                                                    **classificator_params)
-            classificator.apply_spsa()
-    else:
-        classificator = CompleteClassificator(circs=load_circuits(circuits_path), **classificator_params)
-        classificator.apply_spsa()
+    trainer = Trainer(circs=load_circuits(circuits_path),
+                      method=method,
+                      cost=cost,
+                      maxiter=maxiter,
+                      learning_rate=learning_rate,
+                      perturbation=perturbation,
+                      𝓧=𝓧,
+                      fidelity=fidelity,
+                      out_file=out_file)
+
+    trainer.train()
+
 
     if os.path.exists(param_path): os.remove(param_path)
     os.rename("angles.yaml", param_path)
-    shutil.copyfile(param_path, param_path.replace(".yaml", "_" + str(time()) + ".yaml"))
+    secure_copy_path = param_path.replace(".yaml", "_" + str(time()) + ".yaml")
+    shutil.copyfile(param_path, secure_copy_path)
 
-    return param_path
+    return secure_copy_path

@@ -11,7 +11,7 @@ from helpers.circuit_preparation import qiskitCirc2qcp
 def create_circuits(dataset,
                     syntax, 
                     ansatz,
-                    layers,
+                    layers, n_single_q,
                     q_s, q_n, q_np, q_pp, q_c, q_punc,
                     draw=False,
                     filename=None):
@@ -21,7 +21,7 @@ def create_circuits(dataset,
     if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
 
     if not filename:
-        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{q_s}_{q_n}_{q_np}_{q_pp}_{q_c}_{q_punc}.pkl"
+        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{n_single_q}_{q_s}_{q_n}_{q_np}_{q_pp}_{q_c}_{q_punc}.pkl"
         if os.path.exists(os.path.join("createdCircuits", filename)):
             return filename
 
@@ -29,6 +29,7 @@ def create_circuits(dataset,
                  dataset_name=dataset,
                  ansatz=ansatz,
                  n_layers=layers,
+                 n_single_q=n_single_q,
                  q_s=q_s,
                  q_n=q_n,
                  q_np=q_np,
