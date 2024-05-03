@@ -32,7 +32,6 @@ def train(dataset: str,
           maxiter: int,
           learning_rate: float, # ONLY WITH SPSA
           perturbation: float,  # ONLY WITH SPSA
-          out_file: str
           ):
 
     if not os.path.exists("createdParams"): os.mkdir("createdParams")
@@ -64,8 +63,7 @@ def train(dataset: str,
                       learning_rate=learning_rate,
                       perturbation=perturbation,
                       𝓧=𝓧,
-                      fidelity=fidelity,
-                      out_file=out_file)
+                      fidelity=fidelity)
 
     trainer.train()
 

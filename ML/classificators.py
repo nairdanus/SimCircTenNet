@@ -34,7 +34,7 @@ class Trainer:
                  𝓧=None, 
                  fidelity=100,
                  out_file="train.txt"):
-        self.out_file = out_file
+        self.out_file = os.environ.get("OUT_FILE")
         
         self.cost = cost
         self.method = method
