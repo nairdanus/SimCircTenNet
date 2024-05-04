@@ -99,7 +99,9 @@ class Trainer:
 
     def train(self):
         with open(self.out_file, mode="a") as f:
-            f.write(f"Found {len(self.probs)-len(self.error_indices)} circuits!\nBEGINNING:\n")
+            f.write(f"Found {len(self.probs)-len(self.error_indices)} circuits!\n")
+            f.write(f"Operating on {len(self.angle_list)} params!\n")
+            f.write(f"BEGINNING:\n")
 
         if self.method == "SPSA":
             result = self.spsa.minimize(fun=self.loss_function, x0=self.angle_list)

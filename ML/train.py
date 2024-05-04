@@ -65,12 +65,6 @@ def train(dataset: str,
                       𝓧=𝓧,
                       fidelity=fidelity)
 
-    trainer.train()
+    result = trainer.train()
 
-
-    if os.path.exists(param_path): os.remove(param_path)
-    os.rename("angles.yaml", param_path)
-    secure_copy_path = param_path.replace(".yaml", "_" + str(time()) + ".yaml")
-    shutil.copyfile(param_path, secure_copy_path)
-
-    return secure_copy_path
+    return result

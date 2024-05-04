@@ -17,22 +17,22 @@ TESTSET = "test_grammar_aware.csv"
 SYNTAX: Literal["PRE", "BOW", "SEQ"] = "PRE"
 
 ANSATZ: Literal["IQP", "SIM14", "SIM15", "STRONGENT"] = "IQP"
-LAYERS = 1
+LAYERS = 7
 SINGLE_LAYERS = 1  # ONLY IF ANY Q_X ARE 1
 Q_S = 1
-Q_N = 1
-Q_NP = 1
-Q_PP = 1
-Q_C = 1
-Q_PUNC = 1
+Q_N = 2
+Q_NP = 2
+Q_PP = 2
+Q_C = 2
+Q_PUNC = 2
 
-𝓧 = 1025
+𝓧 = None
 FIDELITY = 100
 
 METHOD: Literal["COBYLA", "SPSA"] = "SPSA"
 COST: Literal["CROSS", "MSE"] = "CROSS"
 MAXITER: int = 1000
-LEARNING_RATE: float = 0.05 # ONLY WITH SPSA
+LEARNING_RATE: float = 0.15 # ONLY WITH SPSA
 PERTURBATION: float = 0.06 # ONLY WITH SPSA
 
 
@@ -101,8 +101,9 @@ ______________________________________________________________
 
 """
     ))
-      param_path = train(**kwargs)
+      result = train(**kwargs)
 
       with open(os.environ.get("OUT_FILE"), 'a') as f:
-            f.write(time.strftime(f"\n FINISHED at %m.%d.-%H:%M"))
-            f.write(f"\nANGLES AT: {param_path}")
+            f.write(time.strftime(f"\n\n\nFINISHED at %m.%d.-%H:%M"))
+            f.write(f"\nANGLES AT: {os.environ.get('ANGLE_FILE')}\n\n\n")
+            f.write(result)
