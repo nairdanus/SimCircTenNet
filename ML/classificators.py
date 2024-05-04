@@ -14,12 +14,38 @@ from postprocess_circuits import postprocess_single_circuit
 
 from QCPcircuit import QCPcircuit
 from helpers. angle_preparation import get_angles, update_angles
+from ML.plot import plot_train_file
 
 from qiskit_algorithms.optimizers import SPSA
 from scipy.optimize import minimize
 
-from concurrent.futures import ThreadPoolExecutor
 
+
+def evaluate_classification(gold_labels, pred_labels):
+    tp, fp, fn = 0, 0, 0
+
+    for gold, pred in zip(gold_labels, pred_labels):
+        if gold == "1" and pred == "1":
+            tp += 1
+        elif gold == "0" and pred == "1":
+            fp += 1
+        elif gold == "1" and pred == "0":
+            fn += 1
+            
+    accuracy = sum(1 for gold, pred in zip(gold_labels, pred_labels) if gold == pred) / len(gold_labels)
+    
+    precision = tp / (tp + fp) if (tp + fp) != 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) != 0 else 0
+    f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
+    
+    return accuracy, precision, recall, f1
+
+def get_pred_labels(probs):
+    pred_labels = []
+    for prediction in probs:
+        max_label = max(prediction, key=prediction.get)
+        pred_labels.append(max_label)
+    return pred_labels
 
 
 class Trainer:
@@ -72,8 +98,8 @@ class Trainer:
         self.cur_time = time()
 
     def train(self):
-        print("Minimizing")
-        sys.stdout.flush()
+        with open(self.out_file, mode="a") as f:
+            f.write(f"Found {len(self.probs)-len(self.error_indices)} circuits!\nBEGINNING:\n")
 
         if self.method == "SPSA":
             result = self.spsa.minimize(fun=self.loss_function, x0=self.angle_list)
@@ -83,7 +109,9 @@ class Trainer:
         else:
             print("WHAT IS THE TRAINING METHOD???")
             exit(1)
-
+        
+        plot_train_file(self.out_file)
+        
         return result
     
     def loss_function(self, angles):
@@ -108,14 +136,23 @@ class Trainer:
             print("WHAT IS THE COST FUNCTION???")
             exit(1)
 
+        acc, pr, re, f1 = evaluate_classification(self.golds, get_pred_labels(self.probs))
+        
         self.cur_iter += 1
         elapsed_time = time() - self.cur_time
         self.cur_time = time()
-        out = f"iter {self.cur_iter}: {loss}\n\tTime passed: {elapsed_time}\n"
+
+        out = f"iter {self.cur_iter}: {loss}\n"
+        out += f"acc: {acc}, pr: {pr}, re: {re}, f1: {f1}\n"
+        out += f"\tTime passed: {elapsed_time}\n"
         with open(self.out_file, mode="a") as f:
             f.write(out)
         print(out)
         sys.stdout.flush()
+
+        if self.cur_iter != 0 and self.cur_iter % 50 == 0:
+            plot_train_file(self.out_file)
+
         return loss
 
     def run_simulation(self):

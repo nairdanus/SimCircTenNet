@@ -10,6 +10,8 @@ ANGLE_FILE = os.environ.get("ANGLE_FILE")
 if not ANGLE_FILE: ANGLE_FILE = "angles.yaml"
 
 if not os.path.exists(ANGLE_FILE):
+    if "createdParams" in ANGLE_FILE and not os.path.exists("createdParams/"):
+        os.mkdir("createdParams/")
     with open(ANGLE_FILE, 'w') as yaml_file:
         yaml.dump(dict(), yaml_file)
 

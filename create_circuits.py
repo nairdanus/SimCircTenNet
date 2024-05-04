@@ -21,7 +21,7 @@ def create_circuits(dataset,
     if not os.path.isdir("createdCircuits"): os.mkdir("createdCircuits")
 
     if not filename:
-        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{n_single_q}_{q_s}_{q_n}_{q_np}_{q_pp}_{q_c}_{q_punc}.pkl"
+        filename = f"{dataset}-{ansatz}-{syntax}_{layers}_{n_single_q}_{q_s}_{q_n}_{q_np}_{q_pp}_{q_c}_{q_punc}.pkl".lower()
         if os.path.exists(os.path.join("createdCircuits", filename)):
             return filename
 

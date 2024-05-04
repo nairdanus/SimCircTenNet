@@ -3,8 +3,8 @@ import os
 import time
 from typing import Literal
 
-os.environ["OUT_FILE"] = f"TRAIN_{time.time()}.txt"
-os.environ["ANGLE_FILE"] = f"angles_{time.time()}.yaml"
+os.environ["OUT_FILE"] = f"createdTrainings/TRAIN_{time.time()}.txt"
+os.environ["ANGLE_FILE"] = f"createdParams/angles_{time.time()}.yaml"
 
 from ML import train, evaluate
 
@@ -14,19 +14,19 @@ from ML import train, evaluate
 
 DATASET = "grammar_aware.csv"
 TESTSET = "test_grammar_aware.csv"
-SYNTAX = "pre"
+SYNTAX: Literal["PRE", "BOW", "SEQ"] = "PRE"
 
-ANSATZ = "iqp"
-LAYERS = 7
-SINGLE_LAYERS = 12  # ONLY IF ANY Q_X ARE 1
+ANSATZ: Literal["IQP", "SIM14", "SIM15", "STRONGENT"] = "IQP"
+LAYERS = 1
+SINGLE_LAYERS = 1  # ONLY IF ANY Q_X ARE 1
 Q_S = 1
-Q_N = 2
-Q_NP = 2
-Q_PP = 2
-Q_C = 2
-Q_PUNC = 2
+Q_N = 1
+Q_NP = 1
+Q_PP = 1
+Q_C = 1
+Q_PUNC = 1
 
-𝓧 = None
+𝓧 = 1025
 FIDELITY = 100
 
 METHOD: Literal["COBYLA", "SPSA"] = "SPSA"
@@ -64,10 +64,15 @@ kwargs = {
 
 
 if __name__=="__main__":
+
+      print("TRAIN FILE: ", os.environ.get("OUT_FILE"))
+      print("PID:", os.getpid())
+      
+      if not os.path.exists("createdTrainings/"): os.mkdir("createdTrainings/")
       with open(os.environ.get("OUT_FILE"), 'w') as f:
             f.write(time.strftime(
         f"""
-%m.%d.-%H:%M - Starting training:
+%m.%d.-%H:%M - Starting training with PID {os.getpid()}:
       DATASET = {DATASET}
       # TESTSET = {TESTSET}
       SYNTAX = {SYNTAX}
@@ -100,4 +105,4 @@ ______________________________________________________________
 
       with open(os.environ.get("OUT_FILE"), 'a') as f:
             f.write(time.strftime(f"\n FINISHED at %m.%d.-%H:%M"))
-            f.write(f"ANGLES AT: {param_path}")
+            f.write(f"\nANGLES AT: {param_path}")
