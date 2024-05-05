@@ -98,10 +98,12 @@ class Trainer:
         self.cur_time = time()
 
     def train(self):
+        avg_X, max_X, count_max_X = self.get_chis()
         with open(self.out_file, mode="a") as f:
             f.write(f"Found {len(self.probs)-len(self.error_indices)} circuits!\n")
             f.write(f"Operating on {len(self.angle_list)} params!\n")
-            f.write(f"BEGINNING:\n")
+            f.write(f"𝓧 has an average of {avg_X} with a maximum of {max_X} of {count_max_X} occurences!\n")
+            f.write(f"\n______________________________________________________________\nBEGINNING:\n")
 
         if self.method == "SPSA":
             result = self.spsa.minimize(fun=self.loss_function, x0=self.angle_list)
@@ -172,3 +174,13 @@ class Trainer:
         for i, key in enumerate(self.angle_dict.keys()):
             new_angles[key] = new_angle_list[i]
         update_angles(new_angles)
+
+    def get_chis(self):
+        chis = []
+        for s in self.simulators:
+            chis.extend(s.real_𝓧s)
+        avg_X = sum(chis) / len(chis)
+        max_X = max(chis)
+        count_max_X = chis.count(max_X)
+        
+        return (avg_X, max_X, count_max_X)

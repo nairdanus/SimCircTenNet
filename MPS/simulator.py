@@ -34,7 +34,7 @@ class MPS_Simulator:
                  circ_name: Optional[Text] = "./trash",
                  post_selection: Optional[bool] = True):
         self.𝓧 = 𝓧
-        self.threshold = None if not fidelity or fidelity == 100 else 100 - fidelity
+        self.threshold = None if not fidelity or fidelity == 100 else (100 - fidelity)/100
         self.circ = circ
         if circ is None: raise Exception("circ is None")
         self.circ_name = circ_name
@@ -484,7 +484,8 @@ class MPS_Simulator:
                                              max_truncation_err=self.threshold,
                                              max_singular_values=self.𝓧)
                                              
-            self.real_𝓧s.append(max(u.tensor.shape)+len(trun_vals))
+            # self.real_𝓧s.append(max(u.tensor.shape)+len(trun_vals))
+            self.real_𝓧s.append(max(u.tensor.shape))
 
         except np.linalg.LinAlgError as LinAlgError:
             print("Following tensor did not converge:")
