@@ -14,7 +14,7 @@ from postprocess_circuits import postprocess_single_circuit
 
 from QCPcircuit import QCPcircuit
 from helpers. angle_preparation import get_angles, update_angles
-from ML.plot import plot_train_file
+from ML.plot import plot_train_file, generate_report
 
 from qiskit_algorithms.optimizers import SPSA
 from scipy.optimize import minimize
@@ -115,6 +115,7 @@ class Trainer:
             exit(1)
         
         plot_train_file(self.out_file)
+        generate_report(self.out_file)
         
         return result
     
