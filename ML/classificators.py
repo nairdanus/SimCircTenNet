@@ -98,10 +98,10 @@ class Trainer:
         self.cur_time = time()
 
     def train(self):
-        avg_X, max_X, count_max_X = self.get_chis()
+        avg_X, max_X, count_max_X, num_qubits = self.get_metrics()
         with open(self.out_file, mode="a") as f:
             f.write(f"Found {len(self.probs)-len(self.error_indices)} circuits!\n")
-            f.write(f"Operating on {len(self.angle_list)} params!\n")
+            f.write(f"Operating on {len(self.angle_list)} params on an average of {num_qubits} qubits!\n")
             f.write(f"𝓧 has an average of {avg_X} with a maximum of {max_X} of {count_max_X} occurences!\n")
             f.write(f"\n______________________________________________________________\nBEGINNING:\n")
 
@@ -176,12 +176,15 @@ class Trainer:
             new_angles[key] = new_angle_list[i]
         update_angles(new_angles)
 
-    def get_chis(self):
+    def get_metrics(self):
         chis = []
+        qubits = []
         for s in self.simulators:
             chis.extend(s.real_𝓧s)
+            qubits.append(s.circ.numQubits)
         avg_X = sum(chis) / len(chis)
         max_X = max(chis)
         count_max_X = chis.count(max_X)
+        num_qubits = sum(qubits) / len(qubits)
         
-        return (avg_X, max_X, count_max_X)
+        return (avg_X, max_X, count_max_X, num_qubits)

@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from typing import Literal
 
 os.environ["OUT_FILE"] = f"createdTrainings/TRAIN_{time.time()}.txt"
 os.environ["ANGLE_FILE"] = f"createdParams/angles_{time.time()}.yaml"
@@ -13,11 +14,11 @@ from ML import train, evaluate
 
 DATASET = "grammar_aware.csv"
 TESTSET = "test_grammar_aware.csv"
-SYNTAX: Literal["PRE", "BOW", "SEQ"] = "PRE"
+SYNTAX: Literal["PRE", "BOW", "SEQ"] = "BOW"
 
 ANSATZ: Literal["IQP", "SIM14", "SIM15", "STRONGENT"] = "IQP"
 LAYERS = 7
-SINGLE_LAYERS = 1  # ONLY IF ANY Q_X ARE 1
+SINGLE_LAYERS = 12  # ONLY IF ANY Q_X ARE 1
 Q_S = 1
 Q_N = 2
 Q_NP = 2

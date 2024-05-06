@@ -78,16 +78,19 @@ def generate_report(train_file):
         f1_scores = [float(match[4]) for match in metrics_match]
         total_time_passed = sum(float(match[5]) for match in metrics_match)
         avg_times_passed = total_time_passed / len(metrics_match)
+        total_time_passed /= 3600
         metrics["Max Accuracy"] = max(accuracies)
         metrics["Max Precision"] = max(precisions)
         metrics["Max Recall"] = max(recalls)
         metrics["Max F1"] = max(f1_scores)
-        metrics["Avg Time Passed"] = avg_times_passed
-        metrics["Total Time Passed"] = total_time_passed
+        metrics["Avg Time Passed"] = f"{avg_times_passed} s"
+        metrics["Total Time Passed"] = f"{total_time_passed} h"
     
     metrics["Avg X"] = re.search(r"𝓧 has an average of (.+) with", text).group(1)
     metrics["Max X"] = re.search(r"with a maximum of (.+) of ", text).group(1)
     metrics["Max X Occurences"] = re.search(r"with a maximum of (.+) of (.+) o", text).group(2)
+    metrics["Pram Angles"] = re.search(r"Operating on (.+) params", text).group(1)
+    metrics["Avg Num Qubits"] = re.search(r"params on an average of (.+) qubits", text).group(1)
 
     
 
@@ -108,7 +111,7 @@ def generate_report(train_file):
         y_position -= 20
 
     # Add metrics section as a table
-    y_position -= 60
+    y_position -= 45
 
     # Draw table headers
     doc.setFont("Helvetica-Bold", 12)
