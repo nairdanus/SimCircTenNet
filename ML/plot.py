@@ -44,6 +44,7 @@ def plot_train_file(train_file):
 
     # Save the plot to a file
     plt.savefig(train_file.replace(".txt", ".png"))
+    plt.close('all')
 
 
 def generate_report(train_file):

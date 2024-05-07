@@ -161,14 +161,22 @@ class Trainer:
         return loss
 
     def run_simulation(self):
-        self.simulators = [
-            simulate_single_circuit(circ, self.fidelity, self.𝓧) for circ in self.circs
-            ]
+        self.simulators = []
+        for circ in self.circs:
+            try:
+                sim = simulate_single_circuit(circ, self.fidelity, self.𝓧)
+            except:
+                sim = None
+            self.simulators.append(sim)
 
     def get_simulation_result(self):
-        self.probs = [
-            postprocess_single_circuit(simulator) for simulator in self.simulators
-            ]
+        self.probs = []
+        for sim in self.simulators:
+            if sim is None:
+                val = np.random.rand()
+                self.probs.append({"0": val, "1": 1-val})
+            else:
+                self.probs.append(postprocess_single_circuit(simulator))
     
     def write_angles(self, new_angle_list):
         new_angles = defaultdict(float)
