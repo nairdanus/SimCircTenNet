@@ -176,7 +176,7 @@ class Trainer:
                 val = np.random.rand()
                 self.probs.append({"0": val, "1": 1-val})
             else:
-                self.probs.append(postprocess_single_circuit(simulator))
+                self.probs.append(postprocess_single_circuit(sim))
     
     def write_angles(self, new_angle_list):
         new_angles = defaultdict(float)
