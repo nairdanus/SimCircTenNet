@@ -122,7 +122,7 @@ meta:
     - 2
     avg: 6.137931034482759
     max: 32
-  duration: 14.704980611801147
+  duration: 29.84867262840271
   numAngles: 54
   numQubits: 31
 2:
@@ -383,7 +383,7 @@ meta:
     - 8
     avg: 14.292490118577074
     max: 128
-  duration: 21.801160097122192
+  duration: 47.535441875457764
   numAngles: 93
   numQubits: 49
 3:
@@ -819,7 +819,7 @@ meta:
     - 16
     avg: 36.691588785046726
     max: 512
-  duration: 25.55475664138794
+  duration: 62.10676908493042
   numAngles: 138
   numQubits: 67
 4:
@@ -1468,7 +1468,7 @@ meta:
     - 16
     avg: 97.65678627145085
     max: 2048
-  duration: 91.95105338096619
+  duration: 131.2155909538269
   numAngles: 183
   numQubits: 85
 5:
@@ -2368,6 +2368,6 @@ meta:
     - 16
     avg: 300.7152466367713
     max: 8192
-  duration: 3119.1195266246796
+  duration: 3237.9917969703674
   numAngles: 228
   numQubits: 103
