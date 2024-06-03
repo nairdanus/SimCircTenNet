@@ -25,25 +25,29 @@ def plot_train_file(train_file):
             accuracy = float(line.split(",")[0].split(":")[1].strip())
             accuracies.append(accuracy)
 
+
+    plt.rcParams.update({'font.size': 16})
+
     # Plot the data
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 7))
 
     plt.subplot(2, 1, 1)
     plt.plot(range(1, len(loss_values) + 1), loss_values, color='b')
-    plt.title('Loss vs Iteration')
-    plt.xlabel('Iteration')
+    # plt.title('Loss vs Iteration')
+    # plt.xlabel('SPSA Iteration')
     plt.ylabel('Loss')
+    plt.gca().axes.get_xaxis().set_visible(False)
 
     plt.subplot(2, 1, 2)
     plt.plot(range(1, len(accuracies) + 1), accuracies, color='r')
-    plt.title('Accuracy vs Iteration')
-    plt.xlabel('Iteration')
+    # plt.title('Accuracy vs Iteration')
+    plt.xlabel('SPSA Iteration')
     plt.ylabel('Accuracy')
 
     plt.tight_layout()
 
     # Save the plot to a file
-    plt.savefig(train_file.replace(".txt", ".png"))
+    plt.savefig(train_file.replace(".txt", ".svg"))
     plt.close('all')
 
 

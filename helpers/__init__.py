@@ -8,6 +8,6 @@ from .angle_preparation import evaluate_angle, update_angles, get_angles
 from .braket import v2s, s2v, s2d, v2d, remove_equal_bits
 
 try:
-    from .chi import get_chis, analyse_chis
+    from .chi import get_chis, analyse_chis, analyse_layers
 except ImportError:
     pass

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from helpers import get_chis, analyse_chis
+from helpers import get_chis, analyse_chis, analyse_layers
 
 def analyse_all(subdir=""):
     for f in os.listdir(os.path.join("createdChis", subdir)):
@@ -13,7 +13,7 @@ def analyse_all(subdir=""):
 if __name__ == "__main__":
     args = sys.argv
 
-    usage_message = f"Usage: \n{args[0]} run [-layer int] [sentence...] | eval [dir...]"
+    usage_message = f"Usage: \n{args[0]} run [-layer int] [sentence...] | eval [dir...] | eval_layers file"
 
     if len(args) < 2: print(usage_message); exit(1)
 
@@ -50,6 +50,13 @@ if __name__ == "__main__":
             else:
                 for subdir in args[2:]:
                     analyse_all(subdir)
+
+        case "eval_layers":
+            if len(args) == 2:
+                print(usage_message)
+                exit(1)
+            else:
+                analyse_layers(file_name=args[2])
 
         case _:
             print(usage_message)

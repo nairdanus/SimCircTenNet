@@ -66,6 +66,7 @@ kwargs = {
 if __name__=="__main__":
 
       print("TRAIN FILE: ", os.environ.get("OUT_FILE"))
+      print("ANGLE FILE:", os.environ.get("ANGLE_FILE"))
       print("PID:", os.getpid())
       
       if not os.path.exists("createdTrainings/"): os.mkdir("createdTrainings/")

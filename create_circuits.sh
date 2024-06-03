@@ -95,9 +95,11 @@ done
 
 read -p "How many layers? " chosen_layers
 
+read -p "How many single qubit layers? " chosen_single_layers
+
 read -p "How many qubits for Atomic Types? " chosen_qubits
 
-command="python create_circuits.py --syntax $chosen_syntax --ansatz $chosen_ansatz --layers $chosen_layers --q_n $chosen_qubits --q_np $chosen_qubits --q_pp $chosen_qubits --q_c $chosen_qubits --dataset $selected_file"
+command="python create_circuits.py --q_s $chosen_qubits --syntax $chosen_syntax --ansatz $chosen_ansatz --layers $chosen_layers --n_single_q $chosen_single_layers --q_n $chosen_qubits --q_np $chosen_qubits --q_pp $chosen_qubits --q_c $chosen_qubits --dataset $selected_file"
 
 if [ "$found_s" = true ]; then
   command+=" --filename single_sentence.pkl"

@@ -102,30 +102,81 @@ def analyse_chis(file_name):
         duration.append(value['duration'])
     
 
+    plt.rcParams.update({'font.size': 15})
+
     # Plot
-    fig, ax1 = plt.subplots()
+    fig, ax1 = plt.subplots(figsize=(10, 7))
 
     # Plot Chi Max and Chi Avg on primary y-axis
-    line1, = ax1.plot(x2, chi_max, label='Chi Max')
-    line2, = ax1.plot(x2, chi_avg, label='Chi Avg')
-    ax1.set_xlabel('Circuit Width')
-    ax1.set_ylabel('Chi Value')
-    ax1.set_title(sentence + f"\n{data['meta']['numLayers']} Layers")
-
+    line1, = ax1.plot(x2, chi_max, label='Maximal μ')
+    # line2, = ax1.plot(x2, chi_avg, label='Chi Avg')
+    ax1.set_xlabel('Circuit Width in number of Qubits')
+    ax1.set_ylabel('μ Value')
+    # ax1.set_title(sentence + f"\n{data['meta']['numLayers']} Layers")
+    print(sentence + f"\n{data['meta']['numLayers']} Layers")
     # Create a secondary x-axis with custom labels below the primary x-axis
-    ax2 = ax1.twiny()
-    ax2.set_xticks(x2)
-    ax2.set_xticklabels(x1)
-    ax2.set_xlabel('Atomic Types')
+    # ax2 = ax1.twiny()
+    # ax2.set_xticks(x2)
+    # ax2.set_xticklabels(x1)
+    # ax2.set_xlabel('Atomic Types')
 
     # Create a secondary y-axis for duration
     ax3 = ax1.twinx()  # Create a twin Axes sharing the x-axis
     line3, = ax3.plot(x2, duration, color='r', label='Duration')  # Plot duration data
-    ax3.set_ylabel('Duration')  # Set label for the secondary y-axis
+    ax3.set_ylabel('Duration in seconds')  # Set label for the secondary y-axis
 
     # Merge legends
-    lines = [line1, line2, line3]
+    lines = [line1, line3]
     labels = [line.get_label() for line in lines]
     ax1.legend(lines, labels, loc='upper left')
     
-    plt.show()
+    # plt.show()
+    plt.savefig(data["meta"]["sentence"].split()[0] + "_chi.svg")
+
+
+def analyse_layers(file_name):
+    with open(file_name, 'r') as file:
+        data = yaml.safe_load(file)
+
+    # Extract x and y data
+    x1 = []
+    x2 = []
+    chi_max = []
+    chi_avg = []
+    duration = []
+    sentence = data["meta"]["sentence"]
+
+    for key, value in data.items():
+        if key == "meta": continue
+        x1.append(int(key))
+        x2.append(value['numQubits'])
+        chi_max.append(value['chi']['max'])
+        chi_avg.append(value['chi']['avg'])
+        duration.append(value['duration'])
+    
+
+    plt.rcParams.update({'font.size': 15})
+
+    # Plot
+    fig, ax1 = plt.subplots(figsize=(10, 7))
+
+    # Plot Chi Max and Chi Avg on primary y-axis
+    line1, = ax1.plot(x1, chi_max, label='Maximal μ')
+    # line2, = ax1.plot(x2, chi_avg, label='Chi Avg')
+    ax1.set_xlabel('Circuit Depth in number of Ansatz Layers')
+    ax1.set_ylabel('μ Value')
+    # ax1.set_title(sentence + f"\n{data['meta']['numLayers']} Layers")
+    print(sentence + f"\n{data['meta']['numLayers']} Layers")
+
+    # Create a secondary y-axis for duration
+    ax3 = ax1.twinx()  # Create a twin Axes sharing the x-axis
+    line3, = ax3.plot(x1, duration, color='r', label='Duration')  # Plot duration data
+    ax3.set_ylabel('Duration in seconds')  # Set label for the secondary y-axis
+
+    # Merge legends
+    lines = [line1, line3]
+    labels = [line.get_label() for line in lines]
+    ax1.legend(lines, labels, loc='upper left')
+    
+    # plt.show()
+    plt.savefig(data["meta"]["sentence"].split()[0] + "_chi.svg")

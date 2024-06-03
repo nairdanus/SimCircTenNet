@@ -86,6 +86,8 @@ if __name__ == "__main__":
                         default="iqp", choices=["iqp", "sim14", "sim15", "StrongEnt", "se"], required=False)
     parser.add_argument('--layers', type=int, help='How many layers to use for the Ansatz.',
                         default=1, required=False)
+    parser.add_argument('--n_single_q', type=int, help='How many layers for single qubits.',
+                        default=3, required=False)
     parser.add_argument('--q_s', type=int, help='How many Qubits for sentences.', default=1, required=False)
     parser.add_argument('--q_n', type=int, help='How many Qubits for nouns.', default=1, required=False)
     parser.add_argument('--q_pp', type=int, help='How many Qubits for prepositional phrases.', default=1, required=False)
@@ -101,6 +103,7 @@ if __name__ == "__main__":
                     syntax=args.syntax,
                     ansatz=args.ansatz,
                     layers=args.layers,
+                    n_single_q=args.n_single_q,
                     q_s=args.q_s,
                     q_n=args.q_n,
                     q_np=args.q_np,
